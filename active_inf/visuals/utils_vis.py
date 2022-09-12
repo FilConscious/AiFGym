@@ -42,9 +42,12 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep):
     for p in range(num_policies):
 
         # Computing the mean (average) and std of one policy's free energies over the runs
+        # TODO: handle rare case in which you train only for one episode, in that case squeeze() will raise the exception
         avg_pi_fe = np.mean(pi_fe[:,:,p,:], axis=0).squeeze()
         std_pi_fe = np.std(pi_fe[:,:,p,:], axis=0).squeeze()
         # Making sure avg_pi_fe has the right dimensions
+        #print(avg_pi_fe.shape)
+        #print((num_episodes, num_steps))
         assert avg_pi_fe.shape == (num_episodes, num_steps), 'Wrong dimenions!'
         # Plotting the free energy for every time step 
         x1 = np.arange(num_episodes*num_steps)

@@ -11,19 +11,20 @@ import importlib
 import numpy as np
 from scipy import special
 
+
 # Custom packages/modules imports
-from agent import BaseAgent
-from utils.utils_actinf import *
+from .. agents.base_agents import BaifAgent
+from .. agents.utils_actinf import *
 
 
-class ActInfAgent(BaseAgent):
-    '''ActInf is an agent that performs active inference using a generative model.'''    
+class ActInfAgent(BaifAgent):
+    '''ActInfAgent is an agent that performs active inference using a generative model.'''
 
-    
-    def agent_init(self, agent_info):
+    def __init__(self, agent_params):
+        super().__init__(agent_params)    
         '''Initializing the agent with relevant parameters when the experiment first starts. The method is called by the RLGlue method rl_init.
         Inputs:
-            - agent_info: a dictionary with the parameters used to initialize the agent. The dictionary contains:
+            - agent_params: a dictionary with the parameters used to initialize the agent. The dictionary contains:
                 - num_states: no. of states (integer), NOTE: this is the no. of values the state r.v. at a certain time step can take on;
                 - num_actions: no. of actions (integer);
                 - num_steps: no. of time steps in the generative model (integer);
@@ -35,26 +36,18 @@ class ActInfAgent(BaseAgent):
         Note: we use np.random.RandomState(seed) to set the RNG. 
         '''
         
-        try:
-            self.num_states = agent_info["num_states"]
-            self.num_actions = agent_info["num_actions"]
-            self.start_state = agent_info["start_state"]
-        except:
-            print("You need to pass 'num_states', 'num_actions', and 'start_state' \
-                   in agent_info to initialize the generative and variational models.")
-
-        # Getting some relevant data from agent_info and using default values if nothing was passed in agent_info for these variables.
-        self.env_name = agent_info.get('env_name')
-        self.steps = agent_info.get('steps')
-        self.efe_tsteps = agent_info.get('efe_tsteps')
-        self.pref_type = agent_info['pref_type']
-        self.num_policies = agent_info['num_policies']
-        self.as_mechanism = agent_info['action_selection']
-        self.index_Qt_Si = agent_info['index_Qt_Si']
-        self.learning_A = agent_info['learn_A']
-        self.learning_B = agent_info['learn_B']
-        self.learning_D = agent_info['learn_D']                        
-        self.rng = np.random.default_rng(seed = agent_info.get('random_seed', 42))
+        # Getting some relevant data from agent_params and using default values if nothing was passed in agent_params for these variables.
+        self.env_name = agent_params.get('env_name')
+        self.steps = agent_params.get('steps')
+        self.efe_tsteps = agent_params.get('efe_tsteps')
+        self.pref_type = agent_params['pref_type']
+        self.num_policies = agent_params['num_policies']
+        self.as_mechanism = agent_params['action_selection']
+        self.index_Qt_Si = agent_params['index_Qt_Si']
+        self.learning_A = agent_params['learn_A']
+        self.learning_B = agent_params['learn_B']
+        self.learning_D = agent_params['learn_D']                        
+        self.rng = np.random.default_rng(seed = agent_params.get('random_seed', 42))
 
         # 1. Generative Model, initializing the relevant components used in the computation of free energy and expected free energy:
         # - self.A: observation matrix, i.e. P(o|s) (each column is a categorical distribution);
@@ -108,7 +101,7 @@ class ActInfAgent(BaseAgent):
             # and importing it using importlib.import_module(). Note: this is done to avoid importing all the submodules
             # in phts with 'from phts import *' at the top of the file
             sub_mod = self.env_name + '_phts' 
-            mod_phts = importlib.import_module('phts.' + sub_mod)
+            mod_phts = importlib.import_module('active_inf.phts.' + sub_mod)
             B_init = getattr(mod_phts, 'B_init_' + self.env_name)
         
             self.B = np.zeros((self.num_actions, self.num_states, self.num_states))
@@ -122,7 +115,7 @@ class ActInfAgent(BaseAgent):
         # column is a categorical distribution with the probability mass concentrated on the state(s) the agent wants to be in at every time step
         # in an episode. These preference/probabilities could either be over states or observations.
         #sigma = special.softmax 
-        self.C = agent_info["preferences"]
+        self.C = agent_params["preferences"]
 
         # Initial state distribution, D (if the state is fixed, then D has the probability mass almost totally concentrated on start_state).
         if self.learning_D == True:
@@ -150,7 +143,7 @@ class ActInfAgent(BaseAgent):
         # Note 3: the probabilities over policies change at every step except the last one; in the self.Qpi's column corresponding to the last
         # step we store the Q(pi) computed at the previous time step.
         self.actions = list(range(self.num_actions))
-        self.policies = agent_info["policies"]
+        self.policies = agent_params["policies"]
         self.Qpi = np.zeros((self.num_policies, self.steps))
         self.Qpi[:,0] = np.ones(self.num_policies) * 1/self.policies.shape[0]
         
@@ -197,7 +190,7 @@ class ActInfAgent(BaseAgent):
         # steps from the one indexed by 0 to the one indexed by self.current_tstep *included* - the slicing actually excludes the column indexed 
         # by self.current_tstep, so the right slicing is self.current_obs[:, 0:self.current_tstep+1].
         self.current_action = None
-        self.current_tstep = None
+        self.current_tstep = -1
 
         # 4. Setting the action selection mechanism
 
@@ -547,68 +540,7 @@ class ActInfAgent(BaseAgent):
             pass
     
 
-    def active_inference(self):
-        '''Method putting together all the pieces defined above thereby implementing the active inference algorithm used at each time step
-        during an episode.
-        Inputs: 
-            - None.
-        Outputs: 
-            - current_action (integer), the action selected by the agent after state inference (perception) and policy inference (planning).
-        '''
-
-        # During an episode perform perception, planning, and action selection
-        if self.current_tstep < (self.steps-1):
-
-            self.perception()
-            self.planning()
-            current_action = eval(self.select_action)
-
-        # At the end of the episode (terminal state), do perception and update the A and/or B's parameters (learning)
-        elif self.current_tstep == (self.steps-1):
-
-            self.perception()
-            # IMPORTANT: at the last time step self.planning() only serves to update Q(pi) based on the past as there is no
-            # expected free energy to compute.
-            self.planning()    
-            self.learning()
-            current_action = None
-
-        return current_action
-
-
-    def agent_start(self, initial_obs):
-        '''The first method called when the experiment starts, called after the environment starts. This method lets the agent perform
-        active inference at the first time step.
-        Inputs: 
-            - initial_obs: integer from the environment's env_start function indicating the number of the tile where the agent is located.
-        Outputs: 
-            - self.current_action: the first action the agent takes.
-        '''
-        
-        # IMPORTANT: Resetting the observation array so that we can store a new sequence of observations
-        self.agent_cleanup()
-        # When the agent starts current_tstep goes from -1 to 0
-        self.current_tstep = 0
-        # Updating the matrix of observations and agent obs with the observations at the first time step
-        self.current_obs[initial_obs, self.current_tstep] = 1
-        # Sampling from the categorical distribution, i.e. corresponding column of A. Note that agent_observation is a one-hot vector.
-        # Note 1 (IMPORTANT!): The computation below are not used/relevant as things stand. To make them relevant, we should pass
-        # self.agent_obs to the various methods that require it, e.g. the methods used to minimise free energy in self.perception().
-        agent_observation = np.random.multinomial(1, self.A[:, initial_obs], size=None)
-        self.agent_obs[:, self.current_tstep] = agent_observation
-
-        # Active inference with the initial observation, and storing the selected action in self.actual_action_sequence
-        self.current_action = self.active_inference()
-        self.actual_action_sequence[self.current_tstep] = self.current_action
-
-        # Computing the total free energy and store it in self.total_free_energies (as a reference for the agent performance)
-        total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi)
-        self.total_free_energies[self.current_tstep] = total_F
-
-        return self.current_action
-
-
-    def agent_step(self, reward, new_obs):
+    def step(self, new_obs):
         '''This method lets the agent perform active inference at every time step during an episode.
         Inputs:
             - reward: float representing the reward received for taking the last action, however note this is not used/needed by the
@@ -631,64 +563,53 @@ class ActInfAgent(BaseAgent):
         agent_observation = np.random.multinomial(1, self.A[:, new_obs], size=None)
         self.agent_obs[:, self.current_tstep] = agent_observation
 
-        # Active inference with the new observation, and storing the selected action in self.actual_action_sequence
-        self.current_action = self.active_inference()
+        # During an episode perform perception, planning, and action selection based on current observation
+        if self.current_tstep < (self.steps-1):
+
+            self.perception()
+            self.planning()
+            self.current_action = eval(self.select_action)
+            # Computing the total free energy and store it in self.total_free_energies (as a reference for the agent performance)
+            total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi)
+
+        # At the end of the episode (terminal state), do perception and update the A and/or B's parameters (learning)
+        elif self.current_tstep == (self.steps-1):
+
+            # Saving the P(A) and/or P(B) used during the episode before parameter learning, in this way we conserve the priors for computing the
+            # KL divergence(s) for the total free energy at the end of the episode (see below).
+            prior_A = self.A_params
+            prior_B = self.B_params
+
+            self.perception()
+            # IMPORTANT: at the last time step self.planning() only serves to update Q(pi) based on the past as there is no
+            # expected free energy to compute.
+            self.planning()    
+            self.learning()
+            self.current_action = None
+            # Computing the total free energy and store it in self.total_free_energies (as a reference for the agent performance)
+            # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
+            total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi, prior_A, prior_B, A_params=self.A_params, 
+                                            learning_A=self.learning_A, B_params=self.B_params, learning_B=self.learning_B)
+
+        # Storing the selected action in self.actual_action_sequence
         self.actual_action_sequence[self.current_tstep] = self.current_action
 
-        # Computing the total free energy and store it in self.total_free_energies (as a reference for the agent performance)
-        total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi)
+        # Store total free energy in self.total_free_energies (as a reference for the agent performance)
         self.total_free_energies[self.current_tstep] = total_F
         
         return self.current_action
-
-    def agent_end(self, reward, new_obs):
-        '''Method called by the RLGlue method rl_step when the agent terminates. When the episode ends, there is one last call to 
-        active_inference() in order to perform parameter learning.
-        Inputs: 
-            - reward: float representing the reward received for taking the last action, however note this is not used/needed by the
-            active inference agent (the agent_step method requires it due to how the abstract agent class was defined, i.e. in a way 
-            that can be used with an RL agent as well);
-            - new_obs: the state from the environment's env_step method (based on where the agent ended up after the last step, e.g., 
-            an integer indicating the tile index for the agent in the maze).
-        Outputs: 
-            - None.
-        '''
         
-        # At the last time step, the counter self.current_tstep becomes equal to self.steps-1 (because we consider 0 as the initial state)
-        self.current_tstep += 1
-        # Updating the matrix of observations and agent obs with the observations at the first time step
-        #print(f'The last observation is {new_obs}')
-        self.current_obs[new_obs, self.current_tstep] = 1
-
-        # Sampling from the categorical distribution, i.e. corresponding column of A. Note that agent_observation is a one-hot vector.
-        # Note 1 (IMPORTANT!): The computation below are not used/relevant as things stand. To make them relevant, we should pass
-        # self.agent_obs to the various methods that require it, e.g. the methods used to minimise free energy in self.perception().
-        agent_observation = np.random.multinomial(1, self.A[:, new_obs], size=None)
-        self.agent_obs[:, self.current_tstep] = agent_observation
-
-        # Saving the P(A) and/or P(B) used during the episode before parameter learning, in this way we conserve the priors for computing the
-        # KL divergence(s) for the total free energy at the end of the episode (see below).
-        prior_A = self.A_params
-        prior_B = self.B_params
-
-        # Active inference with the new observation, here the selected action is None because at the last time step active_inference() only 
-        # performs perception and parameters updates.
-        self.current_action = self.active_inference()
-
-        # Computing the total free energy and store it in self.total_free_energies (as a reference for the agent performance)
-        # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
-        total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi, prior_A, prior_B, A_params=self.A_params, 
-                                        learning_A=self.learning_A, B_params=self.B_params, learning_B=self.learning_B)
-        self.total_free_energies[self.current_tstep] = total_F
-        
-          
-    def agent_cleanup(self):
+    
+    def reset(self):
         '''This method is used to reset certain variables before starting a new episode in the method self.agent_start. 
         Specifically, the observation matrix, self.current_obs, and self.Qs should be reset at the beginning of each episode to store the 
         new sequence of observations etc.; also, the matrix with the probabilities over policies stored in the previous episode, self.Qpi, 
         should be rinitialised so that at time step 0 (zero) the prior over policies is the last computed value from the previous episode. 
         All this is done at the beginning because at the end we need to store the sequence of observation and the probabilities over policies.
         '''
+
+        self.current_action = None
+        self.current_tstep = -1
         
         # Setting self.current_obs and self.agent_obs to a zero array before starting a new episode
         self.current_obs = np.zeros((self.num_states, self.steps))

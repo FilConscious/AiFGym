@@ -9,10 +9,11 @@ Created on Sun Jul 11 09:31:00 2021
 import os
 import shutil
 import argparse
+from pathlib import Path
 from glob import glob
 
 # Custom packages/modules imports
-from utils.utils_vis import *
+from . utils_vis import *
 
 
 def main():
@@ -54,9 +55,10 @@ def main():
 	params = vars(args)
 
 	# Retrieving directories where results have been stored
-	saving_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results')
+	saving_dir = Path.cwd().joinpath("results")
+	#print(type(saving_dir))
 	# List of directories with results from different experiment
-	dir = [t for t in enumerate(glob(saving_dir + '/*', recursive=False))]
+	dir = [t for t in enumerate(glob(str(saving_dir) + '/*', recursive=False))]
 
 	# Asking to select a directory for visualization (if there is one available)
 	if len(dir) == 0:

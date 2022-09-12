@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def simple_grid_pt(env_name, pref_type, action_selection, learn_A, learn_B, learn_D):
+def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, learn_D):
 	''' Function that defines the phenotype of the agent in the simple_grid environment. The phenotype consists simply in a bunch of 
 	parameters that constrain the ways the agent behaves in the environment.
 
@@ -27,14 +27,35 @@ def simple_grid_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
 
 	'''
 
-	# Some general parameters
-	num_states = 9
+    # Some general parameters that define key features of the agent, environment, and their interaction
+	# Height of the grid
+	height = 3
+	# Width of the grid
+	width = 3
+	# Goal state for the agent
+	goal_state = 8
+	# Whether the position of the agent will be random
+	rand_pos = False
+	# Whether configuration of tiles will be random
+	rand_conf = False 
+	# List of tiles coordinates (used if rand_conf = False)
+	walls = [(1, 1)]
+	# Total number of tiles (therefore, states) in the world
+	num_states = height * width
+	# Fixed start state (used if rand_pos = False)
 	start_state = 0
+	# Number of time steps in an episode 
 	steps = 5
+	# Maximum number of time steps into the future for computing expected free energy
 	efe_steps = 4
+	# Number of actions
 	num_action = 4
+	# Number of policies
 	num_policies = 4
+	# TODO
 	index_Qt_Si = -1
+
+	
 
 	# Specifying the agent's preferences for every time step during an episode. That is, this translates into a specific trajectory through the
 	# maze that would be realized if one of the policies is picked. Note 1: these preferences have always been hard coded in the discrete active
@@ -95,10 +116,20 @@ def simple_grid_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
 					'learn_B': learn_B,
 					'learn_D': learn_D}
 
-	return agent_params
+
+	env_params = {'height': height,
+				'width': width, 
+				'rand_conf': rand_conf, 
+				'goal_state': goal_state, 
+				'rand_pos': rand_pos,
+				'start_agent_pos': start_state,
+				'walls': walls
+				}
+
+	return env_params, agent_params
 
 
-def B_init_simple_grid(num_states, num_actions):
+def B_init_GridWorldv0(num_states, num_actions):
 	''' Function to initialize the B matrices of the agent's generative model in the o-maze when there is no learning over transition 
 	probabilities. This has to be hard coded for every agent/environment types.
 

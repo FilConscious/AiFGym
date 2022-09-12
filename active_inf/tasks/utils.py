@@ -24,7 +24,7 @@ def get_phenotype(env_name, pref_type, action_selection, learn_A, learn_B, learn
     # and importing it using importlib.import_module(). Note: this is done to avoid importing all the submodules
     # in phts with 'from phts import *' at the top of the file
     sub_mod = env_name + '_phts' 
-    mod_phts = importlib.import_module('phts.' + sub_mod)
+    mod_phts = importlib.import_module('active_inf.phts.' + sub_mod)
 
     func_pt = getattr(mod_phts, env_name + '_pt')
     params = func_pt(env_name, pref_type, action_selection, learn_A, learn_B, learn_D)
