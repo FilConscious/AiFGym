@@ -2,6 +2,18 @@
 Active inference agents in discrete state-spaces using Open AI Gym.
 
 
+To run a script using the active_inf module write in a terminal:
+
+`python -m scripts.main -task task1 -env GridWorldv0 -nr 1 -ne 2 -pt states -as kd`
+
+To visualize the data:
+
+`python -m active_inf.visuals.visualiz -i 4 -v 8 -ti 0 -tv 8 -vl 3 -hl 3`
+
+
+
+
+
 Instruction to install the required packages and visit the Active Inference Zoo. This guide assumes that the user
 has installed Python through Anaconda or similar distributions.
 

@@ -90,25 +90,25 @@ def main():
 	# Plotting saved data (see utils_vis.py for more info).
 
 	# i. Plotting the free energy conditioned on a policy, i.e. F_pi
-	plot_pi_fe(file_dp, params['step_fe_pi'], params['x_ticks_estep'], params['x_ticks_tstep'])
+	plot_pi_fe(file_dp, params['step_fe_pi'], params['x_ticks_estep'], params['x_ticks_tstep'], result_dir)
 	# ii. Plotting the total free energy, i.e. E_pi[F_pi]
-	plot_total_fe(file_dp, params['x_ticks_estep'], params['x_ticks_tstep'])
+	plot_total_fe(file_dp, params['x_ticks_estep'], params['x_ticks_tstep'], result_dir)
 	# iii. Plotting the policies probabilities, i.e. Q(pi)
-	plot_pi_prob(file_dp, params['x_ticks_tstep'])
+	plot_pi_prob(file_dp, params['x_ticks_tstep'], result_dir)
 	# iii. a) Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi); b) Plotting beliefs over states at 
 	# certain time step for every policy, i.e. Q(s|pi), as a function of the experiment steps
-	plot_Qs_pi_prob(file_dp, params['x_ticks_estep'], params['index_Si'], params['value_Si'])
-	plot_Qt_pi_prob(file_dp, params['x_ticks_tstep'], params['index_tSi'], params['value_tSi'])
+	plot_Qs_pi_prob(file_dp, params['x_ticks_estep'], params['index_Si'], params['value_Si'], result_dir)
+	plot_Qt_pi_prob(file_dp, params['x_ticks_tstep'], params['index_tSi'], params['value_tSi'], result_dir)
 
 	# iv. Plotting related to matrices A (state-observation mapping) and B (transitions probabilities). 
-	plot_so_mapping(file_dp, params['x_ticks_estep'], params['state_A'])
-	plot_transitions(file_dp, params['x_ticks_estep'], params['state_B'], params['action_B'])  
+	plot_so_mapping(file_dp, params['x_ticks_estep'], params['state_A'], result_dir)
+	plot_transitions(file_dp, params['x_ticks_estep'], params['state_B'], params['action_B'], result_dir)  
 
 	# v. Plotting other heatmaps
 	# Plotting categorical distributions Q(S|pi) from the last episode (averaged over the runs)
-	plot_Qs_pi_final(file_dp)
+	plot_Qs_pi_final(file_dp, result_dir)
 	# Plotting state visits (averaged over the runs)
-	plot_state_visits(file_dp, params['v_len'], params['h_len'])
+	plot_state_visits(file_dp, params['v_len'], params['h_len'], result_dir)
 
 	# Extra plotting (not revised/amended yet)
 	#plot_efe(file_data_path, exp0_parameters['num_episodes'], exp0_agent_parameters['steps'], exp0_agent_parameters['num_policies'])
