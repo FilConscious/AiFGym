@@ -81,7 +81,8 @@ class GridWorldV0(Env):
         self.rand_pos = params['rand_pos']
         # Starting position for the agent
         self.start_agent_pos = params['start_agent_pos']
-
+        # Indicating whether the goal or terminal state has been reached
+        self.done = False
         # List of canvas frames for recording a video of the environment
         self.canvas_frames = []
         # Define elements present inside the grid world (e.g. wall tiles)
@@ -177,6 +178,28 @@ class GridWorldV0(Env):
             if coarse_state_e == coarse_state:
 
                 return True
+
+
+    def is_at_goal(self, position: tuple[float]) -> bool:
+        '''
+        Function to check if the position of the agent is the same as that of the goal.
+
+        '''
+
+        at_goal = None
+
+        x, y = position
+        coarse_state = self.coarse_representation[self.rgb_to_coarse(y, x)]
+
+        if coarse_state == self.goal_state:
+
+            at_goal = True
+
+        else:
+
+            at_goal = False
+
+        return at_goal
 
 
     def configure_env(self, rand_config=False):
@@ -300,7 +323,7 @@ class GridWorldV0(Env):
         return actions_meanings[action]
 
 
-    def draw_canvas(self):
+    def draw_canvas(self, done=False):
         '''
         Function to draw the elements of the environment on the RGB canvas.
 
@@ -316,12 +339,17 @@ class GridWorldV0(Env):
         for i in [np.arange(0, self.x_max, self.l)]:
             self.canvas[:, i] = 0 
 
+        # Removing Goal object from dictionary if agent reached terminal state in order
+        # to get correct canvas drawing at the end of an episode
+        if done:
+            del self.elements["goal"]
+
         # Draw the element/agent on canvas
         for elem in self.elements.values():
 
             elem_shape = elem.icon.shape
 
-            if isinstance(elem, Squirrel):
+            if isinstance(elem, Squirrel) or isinstance(elem, Goal):
                 x,y = elem.x + 15, elem.y + 15
             else:
                 x,y = elem.x, elem.y
@@ -374,6 +402,8 @@ class GridWorldV0(Env):
 
             if isinstance(elem, Squirrel):
                 x,y = elem.x + 15 + delta[0], elem.y + 15 + delta[1]
+            elif isinstance(elem, Goal):
+                x,y = elem.x + 15, elem.y + 15
             else:
                 x,y = elem.x, elem.y
 
@@ -442,37 +472,57 @@ class GridWorldV0(Env):
                 new_x, new_y = self.action_effect(x_agent, y_agent, agent_move)
                 # Determine proposed new position that respects the x, y values bounds
                 prop_x, prop_y = self.elements["agent"].proposed_position(new_x, new_y)
-                # Checking if the proposed position is already occupied (collision) 
-                if not (self.is_colliding((prop_x, prop_y), *self.elements.values())):
+                # Checking if the proposed position corresponds to the goal/terminal state
+                if self.is_at_goal((prop_x, prop_y)):
+                    # Move agent to the proposed (goal) position
+                    self.elements["agent"].move_to_prop_xy()
+                    # Converte new RGB position into coarse-grained state position
+                    next_state = self.coarse_representation[self.rgb_to_coarse(prop_y, prop_x)]
+                    # Change the icon of the Squirrel object reflecting reward acquisition
+                    self.elements["agent"].set_final_icon()
+                    # Reward and terminal flag
+                    reward = 1
+                    done = True
+                    # Break out of the for loop
+                    break
+                # Checking if the proposed position is already occupied by something different from the goal (collision) 
+                elif not (self.is_colliding((prop_x, prop_y), *self.elements.values())):
                     # Move agent to the proposed position
                     self.elements["agent"].move_to_prop_xy()
                     # Converte new RGB position into coarse-grained state position
                     next_state = self.coarse_representation[self.rgb_to_coarse(prop_y, prop_x)]
+                    # Reward for current transition
+                    reward = 0
                     # Break out of the for loop
                     break
 
                 else:
                     # The agent remains at its current position
                     next_state = state
+                    # Reward for current transition
+                    reward = 0
                     # Break out of the for loop
                     break
  
         # Computing reward, checking for terminal/goal state
-        agent_goal_xy = self.elements["agent"].get_goal() 
-        if state == self.coarse_representation[self.rgb_to_coarse(agent_goal_xy[1], agent_goal_xy[0])]:
-            reward = 1
-            done = True
-        else:
-            reward = 0
+        # agent_goal_xy = self.elements["agent"].get_goal() 
+        # if state == self.coarse_representation[self.rgb_to_coarse(agent_goal_xy[1], agent_goal_xy[0])]:
+        #     reward = 1
+        #     done = True
+        #     self.done = True
+        # else:
+        #     reward = 0
 
         # Draw elements on the canvas
-        self.draw_canvas()
+        self.draw_canvas(done)
 
         return next_state, reward, done, []
 
 
     def reset(self):
 
+        # Resetting self.done
+        self.done = False
         # Configuring the agent (setting its position)
         self.configure_agent(self.start_agent_pos, self.rand_pos, self.goal_state)
         # Configuring the environment (e.g. adding wall tiles)
@@ -589,7 +639,9 @@ class Squirrel(Element):
     def __init__(self, name, x_max, x_min, y_max, y_min):
         super(Squirrel, self).__init__(name, x_max, x_min, y_max, y_min)
 
-        path_to_image = IMAGES_DIR.joinpath("Skippy.jpg")
+        # Path to agent icon
+        path_to_image = IMAGES_DIR.joinpath("squirrel.jpg")
+
         self.icon = cv2.imread(str(path_to_image)) / 255.0
         #self.icon = self.icon.astype('float32')
         #self.icon = cv2.cvtColor(self.icon, cv2.COLOR_BGR2RGB)
@@ -599,6 +651,20 @@ class Squirrel(Element):
 
         self.goal_x = None
         self.goal_y = None
+
+
+    def set_final_icon(self):
+        '''
+        Function that redefines the icon related attributes when the agent reaches the goal state.
+        '''
+
+        # Path to agent icon at the goal state
+        path_to_image = IMAGES_DIR.joinpath("squirrel-acorn.jpg")
+
+        self.icon = cv2.imread(str(path_to_image)) / 255.0
+        self.icon_w = 90
+        self.icon_h = 90
+        self.icon = cv2.resize(self.icon, (self.icon_h, self.icon_w)).astype('float32')
 
 
     def set_goal(self, x_goal, y_goal):
@@ -642,12 +708,12 @@ class Goal(Element):
     def __init__(self, name, x_max, x_min, y_max, y_min):
         super(Goal, self).__init__(name, x_max, x_min, y_max, y_min)
 
-        path_to_image = IMAGES_DIR.joinpath("walnut_c.jpg")
+        path_to_image = IMAGES_DIR.joinpath("acorn.jpg")
         self.icon = cv2.imread(str(path_to_image)) / 255.0
         #self.icon = self.icon.astype('float32')
         #self.icon = cv2.cvtColor(self.icon, cv2.COLOR_BGR2RGB)
-        self.icon_w = 125
-        self.icon_h = 125
+        self.icon_w = 100 #125
+        self.icon_h = 100 #125
         self.icon = cv2.resize(self.icon, (self.icon_h, self.icon_w)).astype('float32')
         
         
