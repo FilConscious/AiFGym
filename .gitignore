@@ -129,3 +129,5 @@ conda_env/
 
 # Results folder
 results/
+# Video folder
+videos/

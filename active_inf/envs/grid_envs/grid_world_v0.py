@@ -488,7 +488,7 @@ class GridWorldV0(Env):
         return self.start_agent_pos
 
 
-    def make_video(self, save_dir):
+    def make_video(self, num_ep, save_dir):
         '''
         Function to create video using the arrays saved in self.canvas_frames.
 
@@ -505,7 +505,7 @@ class GridWorldV0(Env):
 
         size = self.canvas_frames[0].shape
         fps = 2 
-        path_to_video = save_dir.joinpath(f'{dt_string}_video.mp4')
+        path_to_video = save_dir.joinpath(f'ep{num_ep}_{dt_string}_video.mp4')
         out = cv2.VideoWriter(str(path_to_video), cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]), isColor=True)
 
         for frame in self.canvas_frames:

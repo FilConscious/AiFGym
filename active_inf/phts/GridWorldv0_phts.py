@@ -71,8 +71,8 @@ def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
 		pref_array = np.ones((num_states, steps)) * (0.1 / (num_states - 1))
 		pref_array[8, 4] = 0.9
 		pref_array[5, 3] = 0.9
-		pref_array[4, 2] = 0.9
-		pref_array[3, 1] = 0.9
+		pref_array[2, 2] = 0.9
+		pref_array[1, 1] = 0.9
 		pref_array[0, 0] = 0.9
 		assert np.all(np.sum(pref_array, axis=0)) == 1, print('The preferences do not sum to one!')
 
@@ -94,7 +94,7 @@ def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
 	# Specifying the agent's policies for the duration of an episode. That is, the agent is given some "motor plans" (sequences of actions) to try
 	# out and perform during an episode. The agent has to infer which policy is more likely to make him experience the preferred trajectory through
 	# the maze. Note: policies are also usually hard coded in the discrete active inference literature.
-	policies = np.array([[2,2,1,0], [2,1,2,3], [1,1,2,3], [2,1,1,2]])
+	policies = np.array([[2,2,1,0], [2,1,2,3], [1,1,2,3], [1,1,2,2]])
 			
 	# Defining the dictionary storing the agent's parameters. All the parameters can be modified, however note: 1) 'num_states' and 'num_actions' 
 	# are based on the current environment (a grid world with 25 tiles and four possible actions, up/down/left/right), 2) changing some parameters

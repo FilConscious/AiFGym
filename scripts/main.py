@@ -29,6 +29,7 @@ def main():
     parser.add_argument('--learn_A', '-lA', action='store_true')
     parser.add_argument('--learn_B', '-lB', action='store_true')
     parser.add_argument('--learn_D', '-lD', action='store_true')
+    parser.add_argument('--num_videos', '-nvs', type=int, default=0)
 
     # Creating object holding the attributes from the command line
     args = parser.parse_args()

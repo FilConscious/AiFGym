@@ -57,7 +57,7 @@ def train(params, data_path, data_fn):
 
     # Setting env, exp and agent parameters
     env_params, agent_params = get_phenotype(params['env_name'], params['pref_type'], params['action_selection'], params['learn_A'], params['learn_B'], params['learn_D'])
-    exp_params = {'num_runs': params['num_runs'], 'num_episodes': params['num_episodes']}
+    exp_params = {'num_runs': params['num_runs'], 'num_episodes': params['num_episodes'], 'num_videos': params['num_videos']}
 
     # Initialising dictionary to store the experiment's data
     log_data = {}
@@ -69,6 +69,8 @@ def train(params, data_path, data_fn):
     num_max_steps = agent_params['steps']
     num_actions = agent_params['num_actions']
     num_policies = agent_params['num_policies']
+    # Number of videos to record
+    num_videos = exp_params['num_videos']
 
     # Creating the numpy arrays for storing state visits, reward, total free energies etc.
     # Note 1: in the maze environment and for an active inference agent the reward is just a count of how many times the goal state is reached.
@@ -106,7 +108,7 @@ def train(params, data_path, data_fn):
             print(f'Episode number {e}')
             # Resetting the environment and the agent
             start_state = env.reset()
-            env.render()
+            #env.render()
             # Adding a unit to the starting state counter          
             state_visits[run][e][start_state] += 1
 
@@ -154,7 +156,11 @@ def train(params, data_path, data_fn):
             # Reset the agent before starting a new episode
             agent.reset()
 
-        #env.make_video(VIDEO_DIR)
+            # Record num_videos uniformly distanced throughout the experiment
+            rec_step = num_episodes // num_videos
+            if ((e + 1) % rec_step) == 0:
+                
+                env.make_video(str(e), VIDEO_DIR)
             
     # Outside the loops, storing experiment's data in the log_data dictionary...
     log_data['num_runs'] = num_runs
