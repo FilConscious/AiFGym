@@ -54,7 +54,7 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
         y1 = avg_pi_fe.flatten()
 
         plt.figure()
-        plt.plot(x1, y1, label=f'Free Energy for Policy {p}')
+        plt.plot(x1, y1, '.-', label=f'Free Energy for Policy {p}')
         plt.xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
         plt.xlabel('Steps')
         #plt.ylabel('Free Energy', rotation=90)
@@ -111,7 +111,7 @@ def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
     y1 = avg_total_fe.flatten()
 
     plt.figure()
-    plt.plot(x1, y1, label='Total Free Energy')
+    plt.plot(x1, y1, '.-', label='Total Free Energy')
     plt.xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
     plt.xlabel('Steps')
     #plt.ylabel('Total Free Energy', rotation=90)
@@ -181,14 +181,12 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
     plt.show()
     
 
-def plot_efe(file_data_path):
+def plot_efe(file_data_path, save_dir):
     '''Plotting the expected free energy, EFE, for a given policy over all the steps averaged over the runs.
     Inputs: 
         - data_path (string): file path where the total free energy data was stored (i.e. where log_data was saved) 
     Outputs: 
         - plot showing how the expected free energy...
-
-    NOTE USED/REVISED!!!
     '''
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'total_free_energies'
@@ -212,10 +210,12 @@ def plot_efe(file_data_path):
         # y = np.reshape(-avg_efe[:, p, :], (num_episodes*num_steps))
         
         # Plotting a subset of the time steps
-        x = np.arange(1*(num_steps-1))
-        y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
+        x = np.arange(num_episodes*num_steps)
+        #x = np.arange(1*(num_steps-1))
+        y = avg_efe[:, p, :].flatten()
+        #y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
     
-        plt.plot(x, y, label='Policy '+str(p)+'Efe')
+        plt.plot(x, y, '.-', label='Policy '+str(p)+'Efe')
     
     plt.xlabel('Time Steps')
     plt.ylabel('Expected Free Energy', rotation=90)

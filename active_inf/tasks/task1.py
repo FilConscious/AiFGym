@@ -124,19 +124,27 @@ def train(params, data_path, data_fn):
             # Current state (updated at every step and passed to the agent)
             current_state = start_state
             
-            # Agent and environment interact for num_max_steps
-            while steps_count < (num_max_steps-1):
+            # Agent and environment interact for num_max_steps. 
+            # IMPORTANT (to avoid confusion): we start counting episode steps from 0 (steps_count = 0) 
+            # and we have num_max_steps (say, 5) so the below condition (steps_count < (num_max_steps))
+            # ensures that the loop lasts for num_max_steps.
+            while steps_count < num_max_steps:
                 # Agent returns an action based on current observation/state
                 action = agent.step(current_state)
-                # Environment outputs based on agent action
-                next_state, reward, done, _ = env.step(action)
-                # Update step count and total_reward 
+                # This condition handles what should not happen at the last time step, i.e. the agent performs a step that corresponds to
+                # learning and updating various parameters (but action is None) whereas the environment should not change
+                if steps_count < num_max_steps - 1:
+                    # Environment outputs based on agent action
+                    next_state, reward, done, _ = env.step(action)
+                    # Update total_reward 
+                    total_reward += reward
+                    # Adding a unit to the state counter visits for the new state reached
+                    state_visits[run][e][next_state] += 1
+                    # Update current state with next_state
+                    current_state = next_state
+
+                # Update step count
                 steps_count += 1
-                total_reward += reward
-                # Adding a unit to the state counter visits for the new state reached
-                state_visits[run][e][next_state] += 1
-                # Update current state with next_state
-                current_state = next_state
 
             # At the end of the episode, storing the total reward in reward_counts and other info accumulated by the agent, 
             # e.g the total free energies, expected free energies etc. (this is done for every episode and for every run).
@@ -157,10 +165,12 @@ def train(params, data_path, data_fn):
             agent.reset()
 
             # Record num_videos uniformly distanced throughout the experiment
-            rec_step = num_episodes // num_videos
-            if ((e + 1) % rec_step) == 0:
+            if num_videos != 0 and num_videos <= num_episodes:
+
+                rec_step = num_episodes // num_videos
+                if ((e + 1) % rec_step) == 0:
                 
-                env.make_video(str(e), VIDEO_DIR)
+                    env.make_video(str(e), VIDEO_DIR)
             
     # Outside the loops, storing experiment's data in the log_data dictionary...
     log_data['num_runs'] = num_runs

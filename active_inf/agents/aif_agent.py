@@ -307,6 +307,7 @@ class ActInfAgent(BaifAgent):
             #########################################################################################################
 
             # Storing the last computed free energy in self.free_energies
+            print(f'Policy {pi} - Step {self.current_tstep} - FE: {F_pi}')
             self.free_energies[pi, self.current_tstep] = F_pi
             # Computing the policy-independent state probability at self.current_tstep and storing it in self.Qs
             #self.Qs[:, self.current_tstep] += self.Qs_pi[pi, :, self.current_tstep] * self.Qpi[pi, self.current_tstep]
@@ -572,6 +573,9 @@ class ActInfAgent(BaifAgent):
             # Computing the total free energy and store it in self.total_free_energies (as a reference for the agent performance)
             total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi)
 
+            # Storing the selected action in self.actual_action_sequence
+            self.actual_action_sequence[self.current_tstep] = self.current_action
+
         # At the end of the episode (terminal state), do perception and update the A and/or B's parameters (learning)
         elif self.current_tstep == (self.steps-1):
 
@@ -591,8 +595,6 @@ class ActInfAgent(BaifAgent):
             total_F = total_free_energy(self.current_tstep, self.steps, self.free_energies, self.Qpi, prior_A, prior_B, A_params=self.A_params, 
                                             learning_A=self.learning_A, B_params=self.B_params, learning_B=self.learning_B)
 
-        # Storing the selected action in self.actual_action_sequence
-        self.actual_action_sequence[self.current_tstep] = self.current_action
 
         # Store total free energy in self.total_free_energies (as a reference for the agent performance)
         self.total_free_energies[self.current_tstep] = total_F
