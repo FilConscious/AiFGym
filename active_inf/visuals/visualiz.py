@@ -91,6 +91,8 @@ def main():
 
 	# i. Plotting the free energy conditioned on a policy, i.e. F_pi
 	plot_pi_fe(file_dp, params['step_fe_pi'], params['x_ticks_estep'], params['x_ticks_tstep'], result_dir)
+	# i.a Plotting the policy-conditioned free energies (F_pi) in the same plot
+	plot_pi_fe_compare(file_dp, params['step_fe_pi'], params['x_ticks_estep'], params['x_ticks_tstep'], result_dir)
 	# ii. Plotting the total free energy, i.e. E_pi[F_pi]
 	plot_total_fe(file_dp, params['x_ticks_estep'], params['x_ticks_tstep'], result_dir)
 	# ii.a Plotting the expected free energy for each policy

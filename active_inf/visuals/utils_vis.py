@@ -60,6 +60,7 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
         #plt.ylabel('Free Energy', rotation=90)
         plt.legend(loc='upper right')
         plt.title('Active Inference Agent in the Maze\n')
+        plt.savefig(save_dir + '/' + f'pi{p}_fes.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
         plt.show()
 
         # Plotting the free energy at the last time step of every episode for all episodes
@@ -76,8 +77,77 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
         ax.set_title('Active Inference Agent in the Maze\n')
         ax.fill_between(x2, y2-(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), y2+(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), alpha=0.3)
         # Save figure and show
-        plt.savefig(save_dir + '/' + f'pi{p}_fes.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
+        plt.savefig(save_dir + '/' + f'pi{p}_fes_last_step.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
         plt.show()
+
+
+def plot_pi_fe_compare(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_dir):
+    '''This function is almost the same as plot_pi_fe() (the previous plotting function) with the only difference that
+    all policy-conditioned free energies, F_pi (potentially averaged over runs) are plotted on the same figure for 
+    comparison (of course, this might result in a difficult-to-read plot if you have too many runs and/or policies).
+    
+    Inputs: 
+        - data_path (string): file path where the policy free energy data was stored (i.e. where log_data was saved);
+        - step_fe_pi (integer): timestep used to plot the free energy;
+        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+        - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+    Outputs: 
+        - scatter plot of F_pi, showing its evolution as a function of the episodes' steps;
+        - plot showing how F_pi at the last time step changes as the agent learns about the maze (episode after episode).
+    '''
+
+
+    # Retrieving the data dictionary and extracting the content of required keys, e.g. 'pi_free_energies'
+    data = np.load(file_data_path, allow_pickle=True).item()
+    num_runs = data['num_runs']
+    num_episodes = data['num_episodes']
+    num_policies = data['num_policies']
+    num_steps = data['num_steps']
+    pi_fe = data['pi_free_energies']
+
+    # Checking that the step_fe_pi is within an episode
+    assert (step_fe_pi >= 0 and step_fe_pi <= num_steps-1) or step_fe_pi == -1, 'Invalid step number.' 
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    # Looping over the policies
+    for p in range(num_policies):
+
+        # Computing the mean (average) and std of one policy's free energies over the runs
+        # TODO: handle rare case in which you train only for one episode, in that case squeeze() will raise the exception
+        avg_pi_fe = np.mean(pi_fe[:,:,p,:], axis=0).squeeze()
+        std_pi_fe = np.std(pi_fe[:,:,p,:], axis=0).squeeze()
+        # Making sure avg_pi_fe has the right dimensions
+        #print(avg_pi_fe.shape)
+        #print((num_episodes, num_steps))
+        assert avg_pi_fe.shape == (num_episodes, num_steps), 'Wrong dimenions!'
+        # Plotting the free energy for every time step 
+        x1 = np.arange(num_episodes*num_steps)
+        y1 = avg_pi_fe.flatten()
+
+        ax1.plot(x1, y1, '.-', label=f'Free Energy for Policy {p}')
+        ax1.set_xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
+        ax1.set_xlabel('Steps')
+        #ax1.ylabel('Free Energy', rotation=90)
+        ax1.legend(loc='upper right')
+        ax1.set_title('Active Inference Agent in the Maze\n')
+
+        # Plotting the free energy at the last time step of every episode for all episodes
+        # Note 1: another time step can be chosen by changing the index number, i, in avg_pi_fe[:, i]
+        x2 = np.arange(num_episodes)
+        y2 = avg_pi_fe[:,step_fe_pi]
+
+        ax2.plot(x2, y2, '.-', label=f'Free Energy at the Last Timestep for Policy {p}')
+        ax2.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
+        ax2.set_xlabel('Episodes')
+        #ax2.set_ylabel('Free Energy', rotation=90)
+        ax2.legend(loc='upper right')
+        ax2.set_title('Active Inference Agent in the Maze\n')
+        ax2.fill_between(x2, y2-(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), y2+(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), alpha=0.3)
+    
+    # Save figure and show
+    plt.savefig(save_dir + '/' + f'pi_fes_compare.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
+    plt.show()
 
 
 def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
