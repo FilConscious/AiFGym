@@ -486,14 +486,19 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
             m = 2
         # Selecting a single emission probability from state s
         y = y_data[:, c]
-        ax1.plot(x, y, marker=markers[m], linestyle='-')
+        # TODO: the proper marker does not seem to be selected and used in the plot (yes, because with 8 states you have m < 10 so they all get
+        # the same marker...)
+        ax1.plot(x, y, marker=markers[m], linestyle='-', label=f'$P(O={c}|S={s})$')
         ax1.fill_between(x, y-std_som_state[:, c], y+std_som_state[:, c], alpha=0.3)
 
     ax1.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
     ax1.set_xlabel('Episode')
     ax1.set_ylabel('Probability', rotation=90)
-    ax1.legend([f'$P(O={o}|S={s})$' for o in range(num_states)], loc='upper right')
+    #ax1.legend([f'$P(O={o}|S={s})$' for o in range(num_states)], loc='upper right')
+    ax1.legend(loc='upper right')
     ax1.set_title(f'Emission Probabilities from State {s}\n')
+    # Save figure and show
+    plt.savefig(save_dir + '/' + f'emis_prob_state{s}.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
     plt.show()
 
     # Heatmap of the emission probabilites from all states at the end of the experiment
@@ -586,14 +591,16 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
         else:
             m = 2 
         y = y_data[:, c]
-        ax1.plot(x, y, marker=markers[m], linestyle='-')
+        ax1.plot(x, y, marker=markers[m], linestyle='-', label=f'$P(S_{{t+1}}={c}|S_t={s}, \\pi_t={a})$')
         ax1.fill_between(x, y-std_transition_state[:, c], y+std_transition_state[:, c], alpha=0.3)
 
     ax1.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
     ax1.set_xlabel('Episode')
     ax1.set_ylabel('Probability', rotation=90)
-    ax1.legend([f'$P(S_{{t+1}}={i}|S_t={s}, \\pi_t={a})$' for i in range(num_states)], loc='upper right')
+    #ax1.legend([f'$P(S_{{t+1}}={i}|S_t={s}, \\pi_t={a})$' for i in range(num_states)], loc='upper right')
+    ax1.legend(loc='upper right')
     ax1.set_title(f'Transition Probabilities from State {s} for Action {a}\n')
+    plt.savefig(save_dir + '/' + f'tr_probs_state{s}_action{a}.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
     plt.show()
 
     # Heatmap of the transition probabilites from all states for action a at the end of the experiment
