@@ -290,19 +290,19 @@ class ActInfAgent(BaifAgent):
 
             ####################### Second method to update the beliefs: setting gradient to zero ####################
 
-            #for i in range(1):
-                # Computing the free energy for the current policy and gradient descent iteration
-                # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
-            #    logA_pi, logB_pi, logD_pi, F_pi = vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, pi_actions, 
-            #                                                self.A, self.B, self.D, self.Qs_pi, A_params=self.A_params, learning_A=self.learning_A, 
-            #                                                B_params=self.B_params, learning_B=self.learning_B)
+            # for i in range(1):
+            #     # Computing the free energy for the current policy and gradient descent iteration
+            #     # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
+            #     logA_pi, logB_pi, logD_pi, F_pi = vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, pi_actions, 
+            #                                                 self.A, self.B, self.D, self.Qs_pi, A_params=self.A_params, learning_A=self.learning_A, 
+            #                                                 B_params=self.B_params, learning_B=self.learning_B)
                     
-                # Computing the free energy gradient for the current policy
-            #    grad_F_pi = grad_vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, self.Qs_pi, logA_pi, logB_pi, logD_pi)
+            #     # Computing the free energy gradient for the current policy
+            #     grad_F_pi = grad_vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, self.Qs_pi, logA_pi, logB_pi, logD_pi)
 
-                # Simultaneous beliefs updates
-            #    self.Qs_pi[pi, :, :] = sigma((-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) -1) -1, axis=0)
-                #self.Qs_pi[pi, :, :] = sigma( self.Qs_pi[pi, :, :] , axis=0)
+            #     # Simultaneous beliefs updates
+            #     self.Qs_pi[pi, :, :] = sigma((-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) -1) -1, axis=0)
+            #     #self.Qs_pi[pi, :, :] = sigma( self.Qs_pi[pi, :, :] , axis=0)
 
             #########################################################################################################
 

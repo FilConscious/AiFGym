@@ -24,7 +24,7 @@ Test ran using the following command:
 
 So, we are training the agent for 50 episodes and we require it to learn the state-observation mapping (A matrix) using the -lA flag.
 
--------- 15/09/2022 --------
+-------- 14/09/2022 --------
 
 Observations:
 
@@ -43,7 +43,7 @@ Observations:
 - even so, the optimal policy and the close-to-optimal policy seem to compete for probability mass after the fourth episde (but I don't understand why the both drop to zero at the last step)
 - also, the total free energy is zero, this might be another bug
 
--------- 16/09/2022 --------
+-------- 15/09/2022 --------
 
 Observations:
 
@@ -61,7 +61,72 @@ Observations:
 
 - Okay, I fixed the previous issue. The problem was that I messed up the step counts for the training loops, so basically the last agent steps was not carried out, one certain consequence of the bug was that the last free energy slot in the storing matrix/vector stayed at the initialized value of zero (!), it may also be that since the last agent.step was not carried out some parameters were not update, specifically the matrices A and B (!)
 
-- 
+
+-------- 16/09/2022 --------
+
+Ran an experiment for 20 episodes to see if there was any improvement. Here are some observations:
+
+- the free energis seem right now, increasing for the wrong policy and decreasing for the optimal one
+
+- despite that, note that for both policies there is an increase in free energy as the episode unfolds, this can be explained by the presense of not-so-perfect state-observation mapping (matrix A, see observation below), so while you accumulate evidence (observations) for which you are not sure about the free energy might increase
+
+- indeed, 20 episodes (and at the current learning rate, which I think it is just 1) do not seem enought for learning the full state-observation mapping
+
+- there is some learning for the first two states (0 and 1) but at third state already (state 2) the agent is still confused and thinks that P(O=2|S=2) = 0.5ish, P(O=2|S=4) = 0.4ish, P(O=2|S=0) = 0.3ish, of course that affects inference because the agent might infer of being in state 4 after observing 2
+
+- regardless, the agent is again able to pick the optimal policy consistently after a few episodes, having the right transition probability is likely to make this possible/easier even if the state-observation mapping is not perfect
+
+- but likely because of the wrong state observation mapping it does not believe that by following such a policy will lead it to the goal state, i.e. Q(S_8 = 8|pi1) = 0.0789ish, this appears really strange but it may be due (again) to the misguided state-observation mapping
+
+- what is really strange is that there is somme oscillation at the beginning when it comes to Q(S_8 = 8|pi1) with peaks of 0.8 but it drops drastically after a few episodes
+
+Ran an experiment for longer, 100 episodes with two different perceptual inference schemes:
+
+1. Gradient descent (the same used until now)
+
+- the drop in Q(S_8 = 8|pi1) observed earlier actually happens cyclically, it seems there is a kind of oscillation whereby the probability recovers and then drop again after a while, this might be indication that something is wrong with perceptual inference
+
+- running for more episodes does not seem to lead to better state-observation mappings (matrix A)
+
+2. Setting gradient to zero (analytical solution)
+
+- here something weird happens: the optimal policy all of a sudden produces high free energy so it becomes the "worse" policy to the advantage of the suboptimal policy
+
+- the agent ends up following the suboptimal policy (consistently with the fact that probability over policies is determined by F and G)
+
+- by following the suboptimal policy the agent never gets to the goal state but it is nevertheless compelled to follow it because of the smaller F
+
+- if all of that was not weird enough, this time the Q(S_i|pi0) are near perfect even if the state-observation mapping (matrix A) is not that comforting
+
+Hypothesis 1: there is a problem with perceptual inference, it might be that doing the state updated simultaneuously is not beneficial and the correct variational update should be preferred.
+
+Hypothesis 2: there is a problem with action selection at the beginning. Why is the action of the optimal policy not picked at the beginning? Even if its probability is higher? Action selection should be deterministic in this scenario....
+
+Ran an experiment with NO learning over matrices A and B:
+
+- here everything seems to work fine
+
+- however note the interaction in the update of Q(S|pi0) with the wrong evidence 
+
+Ran another experiment for just a bunch of episodes with learning of matrix A to see what happens at the beginning of the experiment:
+
+- again, a scrambled state-observation mapping notwithstanding, the expected free energy makes action selection opting for the optimal policy
+
+- however, the free energy value for the optimal policy turns out to be alarming, depsite the fact that the agent is collecting evidence for the optimal policy its free energy increases, the opposite happens for the suboptimal policy, this is really puzzling
+
+- of course, if you were to include the F in the action selection procedure, as things stand the worse policy would be selected instead
+
+- another puzzling things is that the Q(S|pi0) are near perfect even if that policy is rarely picked!
+
+Explanation of what might be happening (come up after running): at the beginning of the experiment the agent might start going down the right path by picking the action from the optimal policy, note that at this stage the free energies associated with both policy might be very similar, in the middle of the path it may also happen that the free energy for the suboptimal policy turns out to be slightly smaller (why this happens is still a mistery) bringing the agent to select an action from the suboptimal policy, in a perverse turns of events (somehow) this leads to an even smaller free energy for the suboptimal policy, a pernicious cascade ensues so that at the next episode the agent keep selecting actions from the suboptimal policy; unfortunately expected free energy does not help either because the free energy becomes too big quickly (for the optimal policy thereby penalizing it) or because state-observation mapping remain all scrambled. Now, a bunch of hypothesis:
+
+- it could be that the analytic implementation is not correct (note: these issues are not present in the gradient implementation)
+- it could be this is just a quirk for this run and training for more than one agent might reveal a different picture (indeed, this might be an example of a bad bootstrap)
+
+INDEED! it was a quirk about the run!!!!!!!!! yeaaaaaaaah
+
+
+
 
 
 

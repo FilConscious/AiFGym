@@ -136,6 +136,10 @@ def train(params, data_path, data_fn):
                 if steps_count < num_max_steps - 1:
                     # Environment outputs based on agent action
                     next_state, reward, done, _ = env.step(action)
+                    print(f'At step: {steps_count}')
+                    print(f'At agent state: {current_state}')
+                    print(f'Agent action: {action}')
+                    print(f'Next state: {next_state}')
                     # Update total_reward 
                     total_reward += reward
                     # Adding a unit to the state counter visits for the new state reached

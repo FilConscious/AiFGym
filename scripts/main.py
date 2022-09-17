@@ -43,7 +43,7 @@ def main():
     # Datetime object containing current date and time
     now = datetime.now()
     # Converting data-time in an appropriate string: '_dd.mm.YYYY_H.M.S'
-    dt_string = now.strftime('_%d.%m.%Y_%H.%M.%S')
+    dt_string = now.strftime('%d.%m.%Y_%H.%M.%S_')
 
     # Retrieving current working directory and creating folders where to store the data collected from one experiment.
     # Note 1: a data path is created so that running this file multiple times (e.g. for trying different hyperparameters values) 
@@ -52,7 +52,7 @@ def main():
     #data_path = os.path.join(saving_directory, f'{params["env_name"]}r{params["num_runs"]}e{params["num_episodes"]}prF{params["pref_type"]}AS{params["action_selection"]}lA{str(params["learn_A"])[0]}lB{str(params["learn_B"])[0]}lD{str(params["learn_D"])[0]}' + dt_string)
 
     saving_directory = Path.cwd().joinpath("results")
-    data_path = saving_directory.joinpath(f'{params["env_name"]}r{params["num_runs"]}e{params["num_episodes"]}prF{params["pref_type"]}AS{params["action_selection"]}lA{str(params["learn_A"])[0]}lB{str(params["learn_B"])[0]}lD{str(params["learn_D"])[0]}' + dt_string)
+    data_path = saving_directory.joinpath(dt_string + f'{params["env_name"]}r{params["num_runs"]}e{params["num_episodes"]}prF{params["pref_type"]}AS{params["action_selection"]}lA{str(params["learn_A"])[0]}lB{str(params["learn_B"])[0]}lD{str(params["learn_D"])[0]}')
 
 
     if not (os.path.exists(data_path)):

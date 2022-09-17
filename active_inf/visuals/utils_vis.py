@@ -54,12 +54,12 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
         y1 = avg_pi_fe.flatten()
 
         plt.figure()
-        plt.plot(x1, y1, '.-', label=f'Free Energy for Policy {p}')
+        plt.plot(x1, y1, '.-', label=f'Policy $\\pi_{p}$')
         plt.xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
-        plt.xlabel('Steps')
+        plt.xlabel('Step')
         #plt.ylabel('Free Energy', rotation=90)
         plt.legend(loc='upper right')
-        plt.title('Active Inference Agent in the Maze\n')
+        plt.title('Free Energy at Every Step\n')
         plt.savefig(save_dir + '/' + f'pi{p}_fes.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
         plt.show()
 
@@ -69,12 +69,12 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
         y2 = avg_pi_fe[:,step_fe_pi]
 
         fig, ax = plt.subplots()
-        ax.plot(x2, y2, '.-', label=f'Free Energy at the Last Timestep for Policy {p}')
+        ax.plot(x2, y2, '.-', label=f'Policy $\\pi_{p}$')
         ax.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
-        ax.set_xlabel('Episodes')
+        ax.set_xlabel('Episode')
         #ax.set_ylabel('Free Energy', rotation=90)
         ax.legend(loc='upper right')
-        ax.set_title('Active Inference Agent in the Maze\n')
+        ax.set_title('Free Energy at the Last Step\n')
         ax.fill_between(x2, y2-(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), y2+(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), alpha=0.3)
         # Save figure and show
         plt.savefig(save_dir + '/' + f'pi{p}_fes_last_step.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
@@ -125,24 +125,24 @@ def plot_pi_fe_compare(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep,
         x1 = np.arange(num_episodes*num_steps)
         y1 = avg_pi_fe.flatten()
 
-        ax1.plot(x1, y1, '.-', label=f'Free Energy for Policy {p}')
+        ax1.plot(x1, y1, '.-', label=f'Policy $\\pi_{p}$')
         ax1.set_xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
-        ax1.set_xlabel('Steps')
+        ax1.set_xlabel('Step')
         #ax1.ylabel('Free Energy', rotation=90)
         ax1.legend(loc='upper right')
-        ax1.set_title('Active Inference Agent in the Maze\n')
+        ax1.set_title('Free Energy at Every Step\n')
 
         # Plotting the free energy at the last time step of every episode for all episodes
         # Note 1: another time step can be chosen by changing the index number, i, in avg_pi_fe[:, i]
         x2 = np.arange(num_episodes)
         y2 = avg_pi_fe[:,step_fe_pi]
 
-        ax2.plot(x2, y2, '.-', label=f'Free Energy at the Last Timestep for Policy {p}')
+        ax2.plot(x2, y2, '.-', label=f'Policy $\\pi_{p}$')
         ax2.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
-        ax2.set_xlabel('Episodes')
+        ax2.set_xlabel('Episode')
         #ax2.set_ylabel('Free Energy', rotation=90)
         ax2.legend(loc='upper right')
-        ax2.set_title('Active Inference Agent in the Maze\n')
+        ax2.set_title('Free Energy at the Last Step\n')
         ax2.fill_between(x2, y2-(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), y2+(1.96*std_pi_fe[:,-1]/np.sqrt(num_runs)), alpha=0.3)
     
     # Save figure and show
@@ -181,12 +181,12 @@ def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
     y1 = avg_total_fe.flatten()
 
     plt.figure()
-    plt.plot(x1, y1, '.-', label='Total Free Energy')
+    plt.plot(x1, y1, '.-', label='Total FE')
     plt.xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
-    plt.xlabel('Steps')
+    plt.xlabel('Step')
     #plt.ylabel('Total Free Energy', rotation=90)
     plt.legend(loc='upper right')
-    plt.title('Active Inference Agent in the Maze\n')
+    plt.title('Total Free Energy at Every Step\n')
     plt.show()
 
     # Plotting the total free energy at the last time step of every episode
@@ -195,12 +195,12 @@ def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
     y2 = avg_total_fe[:,-1]
 
     fig, ax = plt.subplots()
-    ax.plot(x2, y2, '.-', label='Total Free Energy at the Last Timestep')
+    ax.plot(x2, y2, '.-', label='Total FE')
     ax.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
-    ax.set_xlabel('Episodes')
+    ax.set_xlabel('Episode')
     #ax.set_ylabel('Total Free Energy', rotation=90)
     ax.legend(loc='upper right')
-    ax.set_title('Active Inference Agent in the Maze\n')
+    ax.set_title('Total Free Energy at the Last Step\n')
     ax.fill_between(x2, y2-(1.96*std_total_fe[:,-1]/np.sqrt(num_runs)), y2+(1.96*std_total_fe[:,-1]/np.sqrt(num_runs)), alpha=0.3)
     # Save figure and show
     plt.savefig(save_dir + '/' + 'total_fe.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
@@ -235,17 +235,17 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
     
     for p in range(num_policies):
         y = avg_pi_prob[:, p, :].flatten()
-        plt.plot(x, y, '.-', label=f'Policy {p}')
+        plt.plot(x, y, '.-', label=f'Policy $\\pi_{p}$')
 
 
     plt.xticks(np.arange(0, (num_episodes * num_steps)+1, step=x_ticks_tstep))
-    plt.xlabel('Steps')
-    plt.ylabel('Probability', rotation=90)
+    plt.xlabel('Step')
+    plt.ylabel('Probability Mass', rotation=90)
     #plt.legend(['Policy 1', 'Policy 2', 'Policy 3', 'Policy 4', 'Policy 5'], loc='upper right')
     plt.legend(loc='upper right')
     plt.ticklabel_format(style='plain')
     plt.ticklabel_format(useOffset=False)
-    plt.title('Probabilities over Policies\n')
+    plt.title('Probability over Policies\n')
     # Save figure and show
     plt.savefig(save_dir + '/' + f'pi_probs.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
     plt.show()
@@ -285,22 +285,24 @@ def plot_efe(file_data_path, save_dir):
         y = avg_efe[:, p, :].flatten()
         #y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
     
-        plt.plot(x, y, '.-', label='Policy '+str(p)+'Efe')
+        plt.plot(x, y, '.-', label=f'Policy $\\pi_{p}$')
     
-    plt.xlabel('Time Steps')
+    plt.xlabel('Step')
     plt.ylabel('Expected Free Energy', rotation=90)
     plt.legend(loc='upper right')
-    plt.title('Expected Free Energy throughout the Experiment\n')
+    plt.title('Expected Free Energy at Every Step\n')
     # Save figure and show
     plt.savefig(save_dir + '/' + 'efe.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
     plt.show()
     
 
 def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir):
-    '''Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi), averaged over the runs. More specifically, we pick one
-    of the random variables (r.v.) S_i, where i is in [0,..., num_steps-1], and we plot the probability of one realisations of that r.v. conditioned
-    on the policy. For example, for S_f = g, where f is the final time step and g is the goal state, we are interested in seeing whether Q(S_f=g|pi)
-    is high, meaning the agent learned to predict that following policy pi leads to the goal state at the end of the episode.
+    '''Plotting policies' beliefs over states at a certain time step, i.e. Q(S_t = s|pi), over the episodes (averaged over the runs). 
+
+    More specifically, we pick one of the random variables (r.v.) S_i, where i is in [0,..., num_steps-1], and we plot the probability of one 
+    realisations of that r.v. conditioned on the policy. For example, for S_f = g, where f is the final time step and g is the goal state, 
+    we are interested in seeing whether Q(S_f=g|pi) is high, meaning the agent learned to predict that following policy pi leads to the goal 
+    state at the end of the episode.
 
     Inputs: 
         - data_path (string): file path where the data was stored (i.e. where log_data was saved);
@@ -346,17 +348,17 @@ def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir)
                 # Setting the time step, i.e. the i in S_i
                 r_tstep = index_Si
                 y = avg_prob[:, p, s, r_tstep].flatten()
-                plt.plot(x, y, '.-', label=f'$Q(S_{r_tstep}={s}|\\pi={p})$')
+                plt.plot(x, y, '.-', label=f'$Q(S_{r_tstep}={s}|\\pi_{p})$')
 
         # Decomment if plotting the change in probability at every time step, and comment the next two lines
         # plt.xticks(np.arange(0, num_episodes * num_steps, step=num_steps))
         # plt.xlabel('Steps')
         
     plt.xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
-    plt.xlabel('Episodes')
+    plt.xlabel('Episode')
     plt.ylabel('Probability', rotation=90)
     plt.legend(loc='upper right')
-    plt.title(f'State Beliefs for Policy {p}\n')
+    plt.title('State Belief\n')
     # Save figure and show
     plt.savefig(save_dir + '/' + 'Qs_pi_prob.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
     plt.show()
@@ -412,17 +414,17 @@ def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_di
             if s == value_tSi: #8
                 r_tstep = index_tSi #4
                 y = avg_prob[:, p, s, :].flatten()
-                plt.plot(x, y, '.-', label=f'$Q(S_{r_tstep}={s}|\\pi={p})$')
+                plt.plot(x, y, '.-', label=f'$Q(S_{r_tstep}={s}|\\pi_{p})$')
 
         # Decomment if plotting the change in probability at every time step, and comment the next two lines
         # plt.xticks(np.arange(0, num_episodes * num_steps, step=num_steps))
         # plt.xlabel('Steps')
         
                 plt.xticks(np.arange(0, (num_episodes*num_steps)+1, step=x_ticks_tstep))
-                plt.xlabel('Steps')
-                plt.ylabel('Probability', rotation=90)
+                plt.xlabel('Step')
+                plt.ylabel('Probability Mass', rotation=90)
                 plt.legend(loc='upper right')
-                plt.title(f'Goal-Reaching Predictions for Policy {p}\n')
+                plt.title(f'State Belief at Every Step\n')
 
         # Save figure and show
         plt.savefig(save_dir + '/' + f'Qt_pi{p}_prob.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
@@ -445,6 +447,7 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'so_mappings'
     data = np.load(file_data_path, allow_pickle=True).item()
+    num_runs = data['num_runs']
     num_episodes = data['num_episodes']
     num_steps = data['num_steps']
     num_states = data['num_states']
@@ -489,11 +492,13 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
         # TODO: the proper marker does not seem to be selected and used in the plot (yes, because with 8 states you have m < 10 so they all get
         # the same marker...)
         ax1.plot(x, y, marker=markers[m], linestyle='-', label=f'$P(O={c}|S={s})$')
-        ax1.fill_between(x, y-std_som_state[:, c], y+std_som_state[:, c], alpha=0.3)
+        #ax1.fill_between(x, y-std_som_state[:, c], y+std_som_state[:, c], alpha=0.3)
+        ax1.fill_between(x, y-(1.96*std_som_state[:, c]/np.sqrt(num_runs)), y+(1.96*std_som_state[:, c]/np.sqrt(num_runs)), alpha=0.3)
+        
 
     ax1.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
     ax1.set_xlabel('Episode')
-    ax1.set_ylabel('Probability', rotation=90)
+    ax1.set_ylabel('Probability Mass', rotation=90)
     #ax1.legend([f'$P(O={o}|S={s})$' for o in range(num_states)], loc='upper right')
     ax1.legend(loc='upper right')
     ax1.set_title(f'Emission Probabilities from State {s}\n')
@@ -518,11 +523,11 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
 
     # Create colorbar
     cbar = ax2.figure.colorbar(im, ax=ax2)
-    cbar.ax.set_ylabel('Probability', rotation=-90, va="bottom")
+    cbar.ax.set_ylabel('Probability Mass', rotation=-90, va="bottom")
 
     ax2.set_xlabel('States')
     ax2.set_ylabel('States', rotation=90)
-    ax2.set_title(f'State-observation Matrix at the End of the Experiment')
+    ax2.set_title(f'State-observation Matrix')
 
     # Save figure and show
     plt.savefig(save_dir + '/' + 'so_map.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
@@ -546,6 +551,7 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'transition_prob'
     data = np.load(file_data_path, allow_pickle=True).item()
+    num_runs = data['num_runs']
     num_episodes = data['num_episodes']
     num_steps = data['num_steps']
     num_states = data['num_states']
@@ -592,11 +598,12 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
             m = 2 
         y = y_data[:, c]
         ax1.plot(x, y, marker=markers[m], linestyle='-', label=f'$P(S_{{t+1}}={c}|S_t={s}, \\pi_t={a})$')
-        ax1.fill_between(x, y-std_transition_state[:, c], y+std_transition_state[:, c], alpha=0.3)
+        #ax1.fill_between(x, y-std_transition_state[:, c], y+std_transition_state[:, c], alpha=0.3)
+        ax1.fill_between(x, y-(1.96*std_transition_state[:, c]/np.sqrt(num_runs)), y+(1.96*std_transition_state[:, c]/np.sqrt(num_runs)), alpha=0.3)
 
     ax1.set_xticks(np.arange(0, num_episodes+1, step=x_ticks_estep))
     ax1.set_xlabel('Episode')
-    ax1.set_ylabel('Probability', rotation=90)
+    ax1.set_ylabel('Probability Mass', rotation=90)
     #ax1.legend([f'$P(S_{{t+1}}={i}|S_t={s}, \\pi_t={a})$' for i in range(num_states)], loc='upper right')
     ax1.legend(loc='upper right')
     ax1.set_title(f'Transition Probabilities from State {s} for Action {a}\n')
@@ -624,7 +631,7 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
 
     ax2.set_xlabel('States')
     ax2.set_ylabel('States', rotation=90)
-    ax2.set_title(f'Transition Matrix for Action {a} at the End of the Experiment')
+    ax2.set_title(f'Transition Matrix for Action {a}')
 
     # Save figure and show
     plt.savefig(save_dir + '/' + 'transitions_probs.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
@@ -713,7 +720,7 @@ def plot_Qs_pi_final(file_data_path, save_dir):
         qspi_labels = []
         for s in range(num_steps):
         #qspi_labels = [r'$Q(s_{0}|\pi)$', r'$Q(s_{1}|\pi)$', r'$Q(s_{2}|\pi)$', r'$Q(s_{3}|\pi)$', r'$Q(s_{4}|\pi)$', r'$Q(s_{5}|\pi)$', r'$Q(s_{6}|\pi)$']
-            qspi_labels.append(fr'$Q(s_{s}|\pi)$')
+            qspi_labels.append(fr'$Q(s_{s}|\pi_{p})$')
 
         ax.set_xticks(np.arange(num_steps)-0.5, minor=True)
         ax.set_xticklabels(qspi_labels, minor=True)
@@ -733,14 +740,14 @@ def plot_Qs_pi_final(file_data_path, save_dir):
         cbar.ax.set_ylabel('Probability', rotation=-90, va="bottom")
 
         ax.set_xticks(np.arange(num_steps))
-        ax.set_xlabel('Time Steps')
+        ax.set_xlabel('Time Step')
         ax.invert_yaxis()
         ax.set_yticks(np.arange(num_states))
-        ax.set_ylabel('States', rotation=90)
-        ax.set_title(f'Categorical Distributions over States for Policy {p} at Every Time Step')
+        ax.set_ylabel('State', rotation=90)
+        ax.set_title(f'State Beliefs for Policy $\\pi_{p}$')
 
         # Save figure and show
-        plt.savefig(save_dir + '/' + 'Qs_pi_final.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
+        plt.savefig(save_dir + '/' + f'Qs_pi{p}_final.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
         plt.show()
 
 
@@ -822,7 +829,7 @@ def plot_state_visits(file_path, v_len, h_len, save_dir):
     cbar = ax.figure.colorbar(im, ax=ax)
     cbar.ax.set_ylabel('State Visits Percentage', rotation=-90, va="bottom")
 
-    ax.set_title(f'State Visits in the Maze throughout the Experiment')
+    ax.set_title(f'State Visits')
 
     # Save figure and show
     plt.savefig(save_dir + '/' + 'state_visits.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
