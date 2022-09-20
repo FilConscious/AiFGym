@@ -97,6 +97,8 @@ def main():
 	plot_total_fe(file_dp, params['x_ticks_estep'], params['x_ticks_tstep'], result_dir)
 	# ii.a Plotting the expected free energy for each policy
 	plot_efe(file_dp, result_dir)
+	# ii.b Plotting the expected free energy components for each policy
+	plot_efe_comps(file_dp, result_dir)
 	# iii. Plotting the policies probabilities, i.e. Q(pi)
 	plot_pi_prob(file_dp, params['x_ticks_tstep'], result_dir)
 	# iii. a) Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi); b) Plotting beliefs over states at 

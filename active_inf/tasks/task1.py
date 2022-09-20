@@ -79,6 +79,10 @@ def train(params, data_path, data_fn):
     pi_free_energies = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
     total_free_energies = np.zeros((num_runs, num_episodes, num_max_steps))
     expected_free_energies = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
+    efe_ambiguity = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
+    efe_risk = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
+    efe_Anovelty = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
+    efe_Bnovelty = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
     observations = np.zeros((num_runs, num_episodes, num_states, num_max_steps))
     states_beliefs = np.zeros((num_runs, num_episodes, num_max_steps))
     actual_action_sequence = np.zeros((num_runs, num_episodes, num_max_steps-1))
@@ -156,6 +160,10 @@ def train(params, data_path, data_fn):
             pi_free_energies[run, e, :, :] = agent.free_energies
             total_free_energies[run, e, :] = agent.total_free_energies
             expected_free_energies[run, e, :, :] = agent.expected_free_energies
+            efe_ambiguity[run, e, :, :] = agent.efe_ambiguity
+            efe_risk[run, e, :, :] = agent.efe_risk
+            efe_Anovelty[run, e, :, :] = agent.efe_Anovelty
+            efe_Bnovelty[run, e, :, :] = agent.efe_Bnovelty
             observations[run, e, :, :] = agent.current_obs
             states_beliefs[run, e, :] = agent.states_beliefs
             actual_action_sequence[run, e, :] = agent.actual_action_sequence
@@ -189,6 +197,10 @@ def train(params, data_path, data_fn):
     log_data['pi_free_energies'] = pi_free_energies
     log_data['total_free_energies'] = total_free_energies
     log_data['expected_free_energies'] = expected_free_energies
+    log_data['efe_ambiguity'] = efe_ambiguity
+    log_data['efe_risk'] = efe_risk
+    log_data['efe_Anovelty'] = efe_Anovelty
+    log_data['efe_Bnovelty'] = efe_Bnovelty
     log_data['observations'] = observations 
     log_data['states_beliefs'] = states_beliefs
     log_data['actual_action_sequence'] = actual_action_sequence

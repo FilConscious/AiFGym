@@ -160,9 +160,13 @@ class ActInfAgent(BaifAgent):
 
         # 3. Initialising arrays where to store agent's data during the experiment.
         # Numpy arrays where at every time step the computed free energies and expected free energies for each policy and the total free energy
-        # are stored. For how these are calculated see the methods below.
+        # are stored. For how these are calculated see the methods below. We also stored separately the various EFE components.
         self.free_energies = np.zeros((self.policies.shape[0], self.steps))
         self.expected_free_energies = np.zeros((self.policies.shape[0], self.steps))
+        self.efe_ambiguity = np.zeros((self.policies.shape[0], self.steps))
+        self.efe_risk = np.zeros((self.policies.shape[0], self.steps))
+        self.efe_Anovelty = np.zeros((self.policies.shape[0], self.steps))
+        self.efe_Bnovelty = np.zeros((self.policies.shape[0], self.steps))
         self.total_free_energies = np.zeros((self.steps))
 
         # Where the agent believes it is at each time step
@@ -237,72 +241,72 @@ class ActInfAgent(BaifAgent):
             #print(f'Time Step {self.current_tstep}')
 
             ###################### First method to update the beliefs: gradient descent ###########################
-            next_F = 1000000
-            last_F = 0
-            epsilon = 1
-            delta_w = 0
-            gamma = 0.3
-            counter = 0
+            # next_F = 1000000
+            # last_F = 0
+            # epsilon = 1
+            # delta_w = 0
+            # gamma = 0.3
+            # counter = 0
 
-            # Gradient descent on Free Energy: while loop until the difference between the next and last free energy values becomes less than 
-            # or equal to epsilon.
-            while next_F - last_F > epsilon:
+            # # Gradient descent on Free Energy: while loop until the difference between the next and last free energy values becomes less than 
+            # # or equal to epsilon.
+            # while next_F - last_F > epsilon:
 
-                counter += 1
+            #     counter += 1
 
-                # Computing the free energy for the current policy and gradient descent iteration
-                # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
-                logA_pi, logB_pi, logD_pi, F_pi = vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, pi_actions,
-                                                        self.A, self.B, self.D, self.Qs_pi, A_params=self.A_params, learning_A=self.learning_A, 
-                                                        B_params=self.B_params, learning_B=self.learning_B)
+            #     # Computing the free energy for the current policy and gradient descent iteration
+            #     # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
+            #     logA_pi, logB_pi, logD_pi, F_pi = vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, pi_actions,
+            #                                             self.A, self.B, self.D, self.Qs_pi, A_params=self.A_params, learning_A=self.learning_A, 
+            #                                             B_params=self.B_params, learning_B=self.learning_B)
                 
-                # Computing the free energy gradient for the current policy and gradient descent iteration
-                grad_F_pi = grad_vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, self.Qs_pi, logA_pi, logB_pi, logD_pi)
+            #     # Computing the free energy gradient for the current policy and gradient descent iteration
+            #     grad_F_pi = grad_vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, self.Qs_pi, logA_pi, logB_pi, logD_pi)
                 
                 
-                # Note 1: the updates are stored in the corresponding agent's attributes so they are immediately available at the next iteration.
+            #     # Note 1: the updates are stored in the corresponding agent's attributes so they are immediately available at the next iteration.
 
-                # Simultaneous gradient update using momentum
-                # Note 1 (IMPORTANT!): with momentum the gradient descent works better and leads to better results, however it still does not 
-                # prevent overshooting in certain episodes with the free energy diverging (it oscillates between two values). So, below we stop
-                # the gradient update after a certain number of iterations.
-                self.Qs_pi[pi, :, :] = (self.Qs_pi[pi, :, :] - self.learning_rate_F * grad_F_pi + gamma * delta_w)
-                self.Qs_pi[pi, :, :] = sigma( self.Qs_pi[pi, :, :] - np.amax(self.Qs_pi[pi, :, :], axis=0) , axis=0)
+            #     # Simultaneous gradient update using momentum
+            #     # Note 1 (IMPORTANT!): with momentum the gradient descent works better and leads to better results, however it still does not 
+            #     # prevent overshooting in certain episodes with the free energy diverging (it oscillates between two values). So, below we stop
+            #     # the gradient update after a certain number of iterations.
+            #     self.Qs_pi[pi, :, :] = (self.Qs_pi[pi, :, :] - self.learning_rate_F * grad_F_pi + gamma * delta_w)
+            #     self.Qs_pi[pi, :, :] = sigma( self.Qs_pi[pi, :, :] - np.amax(self.Qs_pi[pi, :, :], axis=0) , axis=0)
 
-                delta_w = gamma * delta_w - self.learning_rate_F * grad_F_pi
+            #     delta_w = gamma * delta_w - self.learning_rate_F * grad_F_pi
                 
-                # Updating temporary variables to compute the difference between previous and next free energies to decide when to stop
-                # the gradient update (i.e. when the absolute value of the different is below epsilon).
-                if counter == 1:
+            #     # Updating temporary variables to compute the difference between previous and next free energies to decide when to stop
+            #     # the gradient update (i.e. when the absolute value of the different is below epsilon).
+            #     if counter == 1:
                     
-                    next_F = F_pi
+            #         next_F = F_pi
                     
-                elif counter > 1:
+            #     elif counter > 1:
                     
-                    last_F = next_F
-                    next_F = F_pi
+            #         last_F = next_F
+            #         next_F = F_pi
                 
-                # IMPORTANT: stopping the gradient updates after 20 iterations to avoid free energy divergence.
-                if counter > 20:
-                    break
+            #     # IMPORTANT: stopping the gradient updates after 20 iterations to avoid free energy divergence.
+            #     if counter > 20:
+            #         break
 
             #########################################################################################################
 
             ####################### Second method to update the beliefs: setting gradient to zero ####################
 
-            # for i in range(1):
-            #     # Computing the free energy for the current policy and gradient descent iteration
-            #     # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
-            #     logA_pi, logB_pi, logD_pi, F_pi = vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, pi_actions, 
-            #                                                 self.A, self.B, self.D, self.Qs_pi, A_params=self.A_params, learning_A=self.learning_A, 
-            #                                                 B_params=self.B_params, learning_B=self.learning_B)
+            for i in range(1):
+                # Computing the free energy for the current policy and gradient descent iteration
+                # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
+                logA_pi, logB_pi, logD_pi, F_pi = vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, pi_actions, 
+                                                            self.A, self.B, self.D, self.Qs_pi, A_params=self.A_params, learning_A=self.learning_A, 
+                                                            B_params=self.B_params, learning_B=self.learning_B)
                     
-            #     # Computing the free energy gradient for the current policy
-            #     grad_F_pi = grad_vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, self.Qs_pi, logA_pi, logB_pi, logD_pi)
+                # Computing the free energy gradient for the current policy
+                grad_F_pi = grad_vfe(self.num_states, self.steps, self.current_tstep, self.current_obs, pi, self.Qs_pi, logA_pi, logB_pi, logD_pi)
 
-            #     # Simultaneous beliefs updates
-            #     self.Qs_pi[pi, :, :] = sigma((-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) -1) -1, axis=0)
-            #     #self.Qs_pi[pi, :, :] = sigma( self.Qs_pi[pi, :, :] , axis=0)
+                # Simultaneous beliefs updates
+                self.Qs_pi[pi, :, :] = sigma((-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) -1) -1, axis=0)
+                #self.Qs_pi[pi, :, :] = sigma( self.Qs_pi[pi, :, :] , axis=0)
 
             #########################################################################################################
 
@@ -359,14 +363,31 @@ class ActInfAgent(BaifAgent):
                 
             else:    
                 # Note 1: if B parameters are learned then you need to pass in self.B_params and self.learning_B (the same applies for A)
-                G_pi = efe(self.num_states, self.steps, self.current_tstep, self.efe_tsteps, pi, pi_actions, self.A, self.C, self.Qs_pi, \
-                            self.pref_type, self.A_params, self.B_params, self.learning_A, self.learning_B)
+                G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs = efe(self.num_states, 
+                                                                            self.steps, 
+                                                                            self.current_tstep, 
+                                                                            self.efe_tsteps, 
+                                                                            pi, 
+                                                                            pi_actions, 
+                                                                            self.A, 
+                                                                            self.C, 
+                                                                            self.Qs_pi,
+                                                                            self.pref_type, 
+                                                                            self.A_params, 
+                                                                            self.B_params, 
+                                                                            self.learning_A, 
+                                                                            self.learning_B)
                 # Storing the expected free energy and the free energy for the corresponding policy as the corresponding entry in self.Qpi, 
                 # that will be normalised below using a softmax to get update probability over the policies (e.g. sigma(-F_pi-G_pi))
                 F_pi = self.free_energies[pi, self.current_tstep]
                 self.Qpi[pi, self.current_tstep] =  G_pi + F_pi
                 # Storing the expected free energy for reference in self.expected_free_energies
                 self.expected_free_energies[pi, self.current_tstep] = G_pi
+                # Storing the expected free energy components for later visualizations
+                self.efe_ambiguity[pi, self.current_tstep] = tot_Hs
+                self.efe_risk[pi, self.current_tstep] = tot_slog_s_over_C
+                self.efe_Anovelty[pi, self.current_tstep] = tot_AsW_As
+                self.efe_Bnovelty[pi, self.current_tstep] = tot_AsW_Bs
 
         # Normalising the negative expected free energies stored as column in self.Qpi to get the posterior over policies Q(pi) to be used 
         self.Qpi[:, self.current_tstep] = sigma( - self.Qpi[:, self.current_tstep] )

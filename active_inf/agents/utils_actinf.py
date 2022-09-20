@@ -326,8 +326,16 @@ def efe(num_states, episode_steps, current_tstep, future_steps, pi, pi_actions, 
         - G_pi (float): the sum of pi's expected free energies, one for each of future time step considered.
     '''
 
-    # Initialising the expected free energy variable.
+    # Initialising the expected free energy variable and its components
     G_pi = 0
+    # Ambiguity
+    tot_Hs = 0
+    # Risk
+    tot_slog_s_over_C = 0 
+    # A-Novelty
+    tot_AsW_As = 0
+    # B-Novelty
+    tot_AsW_Bs = 0
 
     # Computing matrix H for the ambiguity term of the expected free energy.
     # H = -diag[E[A]log(E[A])]
@@ -422,13 +430,22 @@ def efe(num_states, episode_steps, current_tstep, future_steps, pi, pi_actions, 
                     # Risk based on preferred observations
                     slog_s_over_C = np.dot(np.dot(A, Qs_pi[pi,:,tau]), np.log(np.dot(A, Qs_pi[pi,:,tau])) - np.log(C[:, tau]))
 
+                # Update the free energy components
+                # Ambiguity
+                tot_Hs += Hs
+                # Risk
+                tot_slog_s_over_C += slog_s_over_C 
+                # A-Novelty 
+                tot_AsW_As += AsW_As
+                # B-Novelty (B-novelty stays at zero because there is no learning of B here)
+                tot_AsW_Bs += 0
                 # Summing the terms to obtain (an approximation of) expected free energy at the tau time step, and adding the value to G to get
                 # the expected free energy over the future ("imagined") trajectory considered.
                 G_pi_tau = Hs + slog_s_over_C - AsW_As
                 G_pi += G_pi_tau
 
         #assert type(G_pi)==float, 'Free energy is not of type float; it is of type: ' + str(type(G_pi))
-        return G_pi
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
 
     elif learning_A==False and learning_B==True:
         # B is learned but not A.

@@ -294,6 +294,70 @@ def plot_efe(file_data_path, save_dir):
     # Save figure and show
     plt.savefig(save_dir + '/' + 'efe.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
     plt.show()
+
+
+def plot_efe_comps(file_data_path, save_dir):
+    '''Plotting the expected free energy components (ambiguity, risk and novelty) for a given policy over all the steps averaged over the runs.
+    Inputs: 
+        - data_path (string): file path where the total free energy data was stored (i.e. where log_data was saved) 
+    Outputs: 
+        - plot showing how the expected free energy...
+    '''
+
+    # Retrieving the data dictionary and extracting the content of required keys, e.g. 'total_free_energies'
+    data = np.load(file_data_path, allow_pickle=True).item()
+    num_episodes = data['num_episodes']
+    num_policies = data['num_policies']
+    num_steps = data['num_steps']
+    efe = data['expected_free_energies']
+    efe_ambiguity = data['efe_ambiguity']
+    efe_risk = data['efe_risk']
+    efe_Anovelty = data['efe_Anovelty']
+    efe_Bnovelty = data['efe_Bnovelty']
+    # Averaging the expected free energies and their components over the runs
+    avg_efe = np.mean(efe, axis=0).squeeze()
+    avg_efe_ambiguity = np.mean(efe_ambiguity, axis=0).squeeze()
+    avg_efe_risk = np.mean(efe_risk, axis=0).squeeze()
+    avg_efe_Anovelty = np.mean(efe_Anovelty, axis=0).squeeze()
+    avg_efe_Bnovelty = np.mean(efe_Bnovelty, axis=0).squeeze()
+    # Making sure efe has the right dimensions
+    assert avg_efe.shape == (num_episodes, num_policies, num_steps), 'Wrong dimenions!'
+    assert avg_efe_ambiguity.shape == (num_episodes, num_policies, num_steps), 'Wrong dimenions!'
+    assert avg_efe_risk.shape == (num_episodes, num_policies, num_steps), 'Wrong dimenions!'
+    assert avg_efe_Anovelty.shape == (num_episodes, num_policies, num_steps), 'Wrong dimenions!'
+    assert avg_efe_Bnovelty.shape == (num_episodes, num_policies, num_steps), 'Wrong dimenions!'
+
+    plt.figure()
+    
+    for p in range(num_policies):
+          
+        # Plotting all the time steps
+        # x = np.arange(num_episodes*num_steps)
+        # y = np.reshape(-avg_efe[:, p, :], (num_episodes*num_steps))
+        
+        # Plotting a subset of the time steps (i.e. only the first for every episode)
+        x = np.arange(num_episodes)
+        #x = np.arange(1*(num_steps-1))
+        y_efea = avg_efe_ambiguity[:, p, 0].flatten()
+        #print(y_efea.shape)
+        #print(y_efea[0:10])
+        y_efer = avg_efe_risk[:, p, 0].flatten()
+        y_efeA = avg_efe_Anovelty[:, p, 0].flatten()
+        y_efeB = avg_efe_Bnovelty[:, p, 0].flatten()
+        #y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
+    
+        plt.plot(x, y_efea, '.-', label=f'Ambiguity for $\\pi_{p}$')
+        plt.plot(x, y_efer, '.-', label=f'Risk for $\\pi_{p}$')
+        plt.plot(x, y_efeA, '.-', label=f'A-novelty for $\\pi_{p}$')
+        plt.plot(x, y_efeB, '.-', label=f'B-novelty for $\\pi_{p}$')
+    
+    plt.xlabel('Step')
+    plt.ylabel('Value', rotation=90)
+    plt.legend(loc='upper right')
+    plt.title('Expected Free Energy Components at the First Step\n')
+    # Save figure and show
+    plt.savefig(save_dir + '/' + 'efe_comps.pdf', format='pdf', bbox_inches = 'tight', pad_inches = .1)
+    plt.show()
     
 
 def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir):
