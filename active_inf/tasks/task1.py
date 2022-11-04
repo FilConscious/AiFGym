@@ -10,12 +10,12 @@ Created on Wed Aug 5 16:16:00 2020
 # Standard libraries imports
 import os
 import cv2
-import gym
 import time
 import random
 import numpy as np  
 from pathlib import Path
 # External packages imports
+import gymnasium as gym
 from gym import Env, spaces
 # Custom packages/modules imports
 from . utils import get_phenotype

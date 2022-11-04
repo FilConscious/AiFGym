@@ -385,7 +385,7 @@ def efe(num_states, episode_steps, current_tstep, future_steps, pi, pi_actions, 
                 G_pi_tau = Hs + slog_s_over_C - AsW_Bs - AsW_As
                 G_pi += G_pi_tau
 
-        return G_pi
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
 
     elif learning_A==True and learning_B==False:
         # A is learned but not B.
@@ -514,7 +514,7 @@ def efe(num_states, episode_steps, current_tstep, future_steps, pi, pi_actions, 
             G_pi += G_pi_tau
 
         #assert type(G_pi)==float, 'Free energy is not of type float; it is of type: ' + str(type(G_pi))
-        return G_pi
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
 
     else:
         # Neither A nor B is learned.  
@@ -551,7 +551,7 @@ def efe(num_states, episode_steps, current_tstep, future_steps, pi, pi_actions, 
                 G_pi_tau = Hs + slog_s_over_C
                 G_pi += G_pi_tau
 
-        return G_pi
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
 
 
 def dirichlet_update(num_states, num_actions, steps, current_obs, episode_actions, policies, Qpi, Qs_pi, Qs, A_params, B_params, \

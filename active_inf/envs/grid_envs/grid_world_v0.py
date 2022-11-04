@@ -1,9 +1,9 @@
 import os
 import cv2
-import gym
 import time
 import random
 import numpy as np  
+import gymnasium as gym
 
 from pathlib import Path
 from collections.abc import Sequence, Iterable
@@ -715,5 +715,3 @@ class Goal(Element):
         self.icon_w = 100 #125
         self.icon_h = 100 #125
         self.icon = cv2.resize(self.icon, (self.icon_h, self.icon_w)).astype('float32')
-        
-        
