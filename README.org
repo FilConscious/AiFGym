@@ -1,0 +1,8 @@
+:PROPERTIES:
+:CATEGORY: readme
+:END:
+#+STARTUP: overview indent
+
+*  AiFGym
+
+Active inference in grid-world environments (discrete state-spaces). For more info consult the [[file:docs/aif-gym-docs.org][documentation]].
