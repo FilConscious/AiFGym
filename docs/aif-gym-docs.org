@@ -71,6 +71,9 @@ Please contact me at ft98@sussex.ac.uk or filippo.torresan@gmail.com, if:
 	- Any other compelling issue.
 
 * Overview of the Repository
+
+The core script is ~../scripts/main.py~ which defines an argument parser and passes the arguments provided through the command line to the train function of a task (Python) module defined in ~../active_inf/tasks/~ to train an agent; the task module is inmported dynamically depending on the task name the user has provided through the command line (see [[How to Run an Experiment]]).
+
 * How to Run an Experiment
 
 To run a script using the =active_inf= module write in a terminal:

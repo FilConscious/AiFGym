@@ -116,3 +116,7 @@ Explanation of what might be happening (come up after running): at the beginning
 ** 2023-07-03: Updated status
 
 This was put on hold for several months (due to writing for the dissertation). The code is there but it may need some polishing before making the repo public and proper documentation. Also, the idea was to integrate the Monte-Carlo tree search planning component for a basic comparison with a RL agent.
+
+** 2023-07-11: Added docs folder
+
+I added a docs folder storing a file for the documentation, that can be accessed from the README.org, and this notebook for observations, notes, etc. (similar to what done for the predictive coding repo). Next, I should proceed to fill in those file with useful and essential information.
