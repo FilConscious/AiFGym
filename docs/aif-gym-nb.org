@@ -120,3 +120,12 @@ This was put on hold for several months (due to writing for the dissertation). T
 ** 2023-07-11: Added docs folder
 
 I added a docs folder storing a file for the documentation, that can be accessed from the README.org, and this notebook for observations, notes, etc. (similar to what done for the predictive coding repo). Next, I should proceed to fill in those file with useful and essential information.
+
+** 2023-07-17: Writing the Repo Overview
+
+I'm going through the repo to summarize how it works and eliminate redundant, old files.
+
+List of files that can be deletedL
+
+- ~../scripts/utils_run.py~ can be deleted as it belongs to a previous implementation
+-

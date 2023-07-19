@@ -7,7 +7,6 @@ Created on Sun Jul 11 09:31:00 2021
 
 # Standard libraries imports
 import os
-import shutil
 import argparse
 import importlib
 from pathlib import Path
