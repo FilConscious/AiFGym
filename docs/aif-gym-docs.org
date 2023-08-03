@@ -77,12 +77,12 @@ The core script is ~../scripts/main.py~ which defines an argument parser and pas
 Importantly, ~../active_inf/~ is the Python package (a folder with an ~__init__.py~ file) storing all the sub-packages and modules used to train an active inference agent. In addition to the task sub-package, it includes the following sub-packages:
 
 - ~../agents/~ with the module ~aif_agent.py~ specifying the active inference agent class
-- ~../phts/~ for defining the "phenotype" of an active inference agent in a certain environment, chiefly this involves specifying the desired observations/states of the agent (i.e., its priors)
+- ~../phts/~ for defining the "phenotype" of an active inference agent in a certain environment, chiefly this involves specifying the desired observations/states of the agent (i.e., its priors) as well certain defining feature of the environment
 - ~../visuals/~ contains modules for visualizing/plotting data from an experiment
 
 In the working directory, there is also the package ~../envs/~ for defining (or downloading) different environments in which to train the agent, e.g., ~../envs/grid_envs~ is a sub-package storing modules for grid-world environments.
 
-For example, ~../active_inf/tasks/task1.py~ is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from ~../envs/grid_envs/grid_world_v0.py~, the active inference agent class from ~../agents/aif_agent.py~, and its correspoding phenotype from ~../phts/~ (using an utility function in ~../tasks/utils.py~). Then, it defines the train function instantiating at every run both an agent and the correspoding environment who interact for a certain number of episodes (training loop). The train function is called in ~../scripts/main.py~, if "task1" is the task name passed through the command line (so every new task module should have a train function).
+For example, ~../active_inf/tasks/task1.py~ is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from ~../envs/grid_envs/grid_world_v0.py~, the active inference agent class from ~../agents/aif_agent.py~, and its correspoding phenotype from ~../phts/~ (using an utility function in ~../tasks/utils.py~). Then, it defines the train function instantiating at every run both an agent and the corresponding environment who interact for a certain number of episodes (training loop). The train function is called in ~../scripts/main.py~, if "task1" is the task name passed through the command line (so every new task module should have a train function).
 
 * How to Run an Experiment
 

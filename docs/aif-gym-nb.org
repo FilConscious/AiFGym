@@ -125,7 +125,13 @@ I added a docs folder storing a file for the documentation, that can be accessed
 
 I'm going through the repo to summarize how it works and eliminate redundant, old files.
 
-List of files that can be deletedL
+List of files that can be deleted:
 
 - ~../scripts/utils_run.py~ can be deleted as it belongs to a previous implementation
 -
+
+** 2023-07-27: Issue about policy-independent state probabilities
+
+I found some duplicate code that computes policy-independent state probabilities, reflecting a doubt that I had about /when/ to perform that computation, after state-estimation (perception) or after policy updating (planning)?
+
+I think it makes more sense to do it after policy updating (and that is probably why I had commented out the first instance of those lines of code). However, those updated probabilities are usually not used by the agent, except maybe in the implementation of [[cite:&Sales2019]] (I need to double-check this).
