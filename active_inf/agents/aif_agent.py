@@ -242,7 +242,7 @@ class ActInfAgent(BaifAgent):
         # 4. Setting the action selection mechanism
         if self.as_mechanism == "kd":
             # Action selection mechanism with Kronecker delta (KD) as described in Da Costa et. al. 2020,
-            # 'Active inference on discrete state-spaces: a synthesis'.
+            # (DOI: 10.1016/j.jmp.2020.102447).
             self.select_action = "self.action_selection_KD()"
 
         elif self.as_mechanism == "kl":
@@ -507,7 +507,7 @@ class ActInfAgent(BaifAgent):
 
     def action_selection_KD(self):
         """Method for action selection based on the Kronecker delta, as described in Da Costa et. al. 2020,
-        (10.1016/j.jmp.2020.102447). It involves using the approximate posterior Q(pi) to select the most
+        (DOI: 10.1016/j.jmp.2020.102447). It involves using the approximate posterior Q(pi) to select the most
         likely action, this is done through a Bayesian model average.
 
         Inputs:
