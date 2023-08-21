@@ -17,14 +17,21 @@ import matplotlib.pyplot as plt
 
 def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_dir):
     """Plotting the free energy conditioned on a specific policy, F_pi, averaged over the runs.
+
     Inputs:
-        - data_path (string): file path where the policy free energy data was stored (i.e. where log_data was saved);
-        - step_fe_pi (integer): timestep used to plot the free energy;
-        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
-        - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+
+    - file_data_path (string): file path where the policy free energy data was stored
+      (i.e. where log_data was saved);
+    - step_fe_pi (integer): timestep used to plot the free energy;
+    - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+    - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - scatter plot of F_pi, showing its evolution as a function of the episodes' steps;
-        - plot showing how F_pi at the last time step changes as the agent learns about the maze (episode after episode).
+
+    - scatter plot of F_pi, showing its evolution as a function of the episodes' steps;
+    - plot showing how F_pi at the last time step changes as the agent learns about the maze
+      (episode after episode).
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'pi_free_energies'
@@ -44,7 +51,8 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
     for p in range(num_policies):
 
         # Computing the mean (average) and std of one policy's free energies over the runs
-        # TODO: handle rare case in which you train only for one episode, in that case squeeze() will raise the exception
+        # TODO: handle rare case in which you train only for one episode, in that case squeeze()
+        # will raise the exception
         avg_pi_fe = np.mean(pi_fe[:, :, p, :], axis=0).squeeze()
         std_pi_fe = np.std(pi_fe[:, :, p, :], axis=0).squeeze()
         # Making sure avg_pi_fe has the right dimensions
@@ -101,18 +109,24 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
 def plot_pi_fe_compare(
     file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_dir
 ):
-    """This function is almost the same as plot_pi_fe() (the previous plotting function) with the only difference that
-    all policy-conditioned free energies, F_pi (potentially averaged over runs) are plotted on the same figure for
-    comparison (of course, this might result in a difficult-to-read plot if you have too many runs and/or policies).
+    """This function is almost the same as plot_pi_fe() (the previous plotting function) with the only
+    difference that all policy-conditioned free energies, F_pi (potentially averaged over runs) are plotted
+    on the same figure for comparison (of course, this might result in a difficult-to-read plot if you have
+    too many runs and/or policies).
 
     Inputs:
-        - data_path (string): file path where the policy free energy data was stored (i.e. where log_data was saved);
-        - step_fe_pi (integer): timestep used to plot the free energy;
-        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
-        - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+
+    - file_data_path (string): file path where the policy free energy data was stored (i.e. where log_data was saved);
+    - step_fe_pi (integer): timestep used to plot the free energy;
+    - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+    - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - scatter plot of F_pi, showing its evolution as a function of the episodes' steps;
-        - plot showing how F_pi at the last time step changes as the agent learns about the maze (episode after episode).
+
+    - scatter plot of F_pi, showing its evolution as a function of the episodes' steps;
+    - plot showing how F_pi at the last time step changes as the agent learns about the maze
+      (episode after episode).
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'pi_free_energies'
@@ -134,7 +148,8 @@ def plot_pi_fe_compare(
     for p in range(num_policies):
 
         # Computing the mean (average) and std of one policy's free energies over the runs
-        # TODO: handle rare case in which you train only for one episode, in that case squeeze() will raise the exception
+        # TODO: handle rare case in which you train only for one episode, in that case squeeze()
+        # will raise the exception
         avg_pi_fe = np.mean(pi_fe[:, :, p, :], axis=0).squeeze()
         std_pi_fe = np.std(pi_fe[:, :, p, :], axis=0).squeeze()
         # Making sure avg_pi_fe has the right dimensions
@@ -182,13 +197,19 @@ def plot_pi_fe_compare(
 
 def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
     """Plotting the total free energy averaged over the runs.
+
     Inputs:
-        - data_path (string): file path where the total free energy data was stored (i.e. where log_data was saved);
-        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
-        - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+
+    - file_data_path (string): file path where the total free energy data was stored (i.e. where log_data
+      was saved);
+    - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+    - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - scatter plot of F, showing its evolution as a function of the episodes' steps;
-        - plot showing how F at the last time step changes as the agent learns about the maze (episode after episode).
+
+    - scatter plot of F, showing its evolution as a function of the episodes' steps;
+    - plot showing how F at the last time step changes as the agent learns about the maze (episode after episode).
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'total_free_energies'
@@ -248,14 +269,21 @@ def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
 
 
 def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
-    """Plotting the probability over policies, Q(pi), averaged over the runs at every time step during the experiment.
-    Inputs:
-        - data_path (string): file path where the data was stored (i.e. where log_data was saved);
-        - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
-    Outputs:
-        - plot showing the evolution of Q(pi) as the agent goes through the episodes.
+    """Plotting the probability over policies, Q(pi), averaged over the runs at every time step during
+    the experiment.
 
-    Note 1: the probability mass should concentrate on the most favoured policy as the agent experiences the maze (episode after episode).
+    Inputs:
+
+    - file_data_path (string): file path where the data was stored (i.e. where log_data was saved);
+    - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+    - save_dir (string): directory where to save the images.
+
+    Outputs:
+
+    - plot showing the evolution of Q(pi) as the agent goes through the episodes.
+
+    Note 1: the probability mass should concentrate on the most favoured policy as the agent experiences
+    the maze (episode after episode).
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'pi_probabilities'
@@ -301,10 +329,16 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
 
 def plot_efe(file_data_path, save_dir):
     """Plotting the expected free energy, EFE, for a given policy over all the steps averaged over the runs.
+
     Inputs:
-        - data_path (string): file path where the total free energy data was stored (i.e. where log_data was saved)
+
+    - file_data_path (string): file path where the total free energy data was stored (i.e. where log_data
+      was saved)
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - plot showing how the expected free energy...
+
+    - plot showing evolution of the expected free energy
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'total_free_energies'
@@ -348,10 +382,16 @@ def plot_efe(file_data_path, save_dir):
 def plot_efe_comps(file_data_path, save_dir):
     """Plotting the expected free energy components (ambiguity, risk and novelty) for a given policy over
     all the steps averaged over the runs.
+
     Inputs:
-        - data_path (string): file path where the total free energy data was stored (i.e. where log_data was saved)
+
+    - file_data_path (string): file path where the total free energy data was stored (i.e. where log_data
+      was saved)
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - plot showing how the expected free energy...
+
+    - plot showing evolution of the expected free energy.
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'total_free_energies'
@@ -432,24 +472,31 @@ def plot_efe_comps(file_data_path, save_dir):
 
 
 def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir):
-    """Plotting policies' beliefs over states at a certain time step, i.e. Q(S_t = s|pi), over the episodes (averaged over the runs).
+    """Plotting policies' beliefs over states at a certain time step, i.e. Q(S_t = s|pi),
+    over the episodes (averaged over the runs).
 
-    More specifically, we pick one of the random variables (r.v.) S_i, where i is in [0,..., num_steps-1], and we plot the probability of one
-    realisations of that r.v. conditioned on the policy. For example, for S_f = g, where f is the final time step and g is the goal state,
-    we are interested in seeing whether Q(S_f=g|pi) is high, meaning the agent learned to predict that following policy pi leads to the goal
-    state at the end of the episode.
+    More specifically, we pick one of the random variables (r.v.) S_i, where i is in [0,..., num_steps-1],
+    and we plot the probability of one realization of that r.v. conditioned on the policy.
+    For example, for S_f = g, where f is the final time step and g is the goal state, we are interested
+    in seeing whether Q(S_f=g|pi) is high, meaning the agent learned to predict that following policy pi
+    leads to the goal state at the end of the episode.
 
     Inputs:
-        - data_path (string): file path where the data was stored (i.e. where log_data was saved);
-        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
-        - index_Si (integer): index i in S_i to select the random variable we are interested in;
-        - value_Si (integer): value of S_i we care about;
+
+    - file_data_path (string): file path where the data was stored (i.e. where log_data was saved);
+    - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+    - index_Si (integer): index i in S_i to select the random variable we are interested in;
+    - value_Si (integer): value of S_i we care about;
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - plot showing the evolution of Q(s|pi) for one s (or more) as the agent goes through the episodes.
+
+    - plot showing the evolution of Q(s|pi) for one s (or more) as the agent goes through the episodes.
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'policy_state_prob'
-    # Note 1: policy_state_prob is a numpy array of shape (num_runs, num_episodes, num_policies, num_states, num_max_steps).
+    # Note 1: policy_state_prob is a numpy array of shape:
+    # (num_runs, num_episodes, num_policies, num_states, num_max_steps).
     data = np.load(file_data_path, allow_pickle=True).item()
     num_states = data["num_states"]
     num_policies = data["num_policies"]
@@ -461,7 +508,8 @@ def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir)
     # Retrieving the number of episodes
     num_episodes = avg_prob.shape[0]
 
-    # Checking that index_Si is within an episode and that the typed-in value of S_i is one of the legitimate values
+    # Checking that index_Si is within an episode and that the typed-in value of S_i is one of the
+    # legitimate values
     assert index_Si >= 0 and index_Si <= (
         num_steps - 1
     ), "Invalid random variable index."
@@ -475,23 +523,20 @@ def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir)
     for p in range(num_policies):
 
         x = np.arange(num_episodes)  # *num_steps)
-
-        # Selecting the realisation of S_i, e.g. the goal state, for which to represent the changes in probability; we can decide whether to
-        # represent the change in probability for the selected state at every time step for every episode (done in the next function) or just
-        # at the time step i for which we would expect the probability to be high (still for every episode), e.g. for the goal state that would
-        # be the final step in the episode (this is what is done here). In other words, we are interested in looking at whether the agent infers
-        # to be in the right state in the present moment.
+        # Selecting the realization of S_i, e.g. the goal state, for which to represent the changes in
+        # probability; we can decide whether to represent the change in probability for the selected
+        # state at every time step for every episode (done in the next function) or just at the time
+        # step i for which we would expect the probability to be high (still for every episode),
+        # e.g. for the goal state that would be the final step in the episode (this is what is done here).
+        # In other words, we are interested in looking at whether the agent infers to be in the right
+        # state in the present moment.
         for s in range(num_states):
-            # Setting the realisation of S_i
+            # Setting the realization of S_i
             if s == value_Si:
                 # Setting the time step, i.e. the i in S_i
                 r_tstep = index_Si
                 y = avg_prob[:, p, s, r_tstep].flatten()
                 plt.plot(x, y, ".-", label=f"$Q(S_{r_tstep}={s}|\\pi_{p})$")
-
-        # Decomment if plotting the change in probability at every time step, and comment the next two lines
-        # plt.xticks(np.arange(0, num_episodes * num_steps, step=num_steps))
-        # plt.xlabel('Steps')
 
     plt.xticks(np.arange(0, num_episodes + 1, step=x_ticks_estep))
     plt.xlabel("Episode")
@@ -509,23 +554,32 @@ def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir)
 
 
 def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_dir):
-    """Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi), averaged over the runs *and* as a function of the
-    experiment steps. More specifically, we are retrieving the data related to the random variables (r.v.) S_i, where i is equal to the final step,
-    and we plot the probability of one realisations of that r.v. (goal state) conditioned on the policy and as a function of the experiment steps.
-    For example, for S_f = g, where f is the final time step and g is the goal state, we are interested in seeing how Q(S_f=g|pi) changes during
-    the experiment at every time step.
+    """Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi), averaged over
+    the runs *and* as a function of the experiment steps.
+
+    More specifically, we are retrieving the data related to the random variables (r.v.) S_i, where i is
+    equal to the final step, and we plot the probability of one realization of that r.v. (goal state)
+    conditioned on the policy and as a function of the experiment steps.
+    For example, for S_f = g, where f is the final time step and g is the goal state, we are interested in
+    seeing how Q(S_f=g|pi) changes during the experiment at *every* time step (as opposed to at just one
+    time step as done in the previous function).
 
     Inputs:
-        - data_path (string): file path where the data was stored (i.e. where log_data was saved);
-        - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
-        - index_tSi (integer): index i in S_i to select the random variable we are interested in;
-        - value_tSi (integer): value of S_i we care about;
+
+    - file_data_path (string): file path where the data was stored (i.e. where log_data was saved);
+    - x_ticks_tstep (integer): step for the ticks in the x axis when plotting as a function of total timesteps;
+    - index_tSi (integer): index i in S_i to select the random variable we are interested in;
+    - value_tSi (integer): value of S_i we care about;
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - plot showing the evolution of Q(s|pi) for one s (or more) as the agent goes through the episodes.
+
+    - plot showing the evolution of Q(s|pi) for one s (or more) as the agent goes through the episodes.
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'last_tstep_prob'
-    # Note 1: last_tstep_prob is a numpy array of shape (num_runs, num_episodes, num_policies, num_states, num_max_steps).
+    # Note 1: last_tstep_prob is a numpy array of shape:
+    # (num_runs, num_episodes, num_policies, num_states, num_max_steps).
     data = np.load(file_data_path, allow_pickle=True).item()
     num_states = data["num_states"]
     num_policies = data["num_policies"]
@@ -536,7 +590,8 @@ def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_di
     # avg_prob = np.mean(avg_prob, axis=0).squeeze()
     # assert avg_prob.shape == (num_policies, num_states, num_steps)
 
-    # Checking that index_Si is within an episode and that the typed-in value of S_i is one of the legitimate values
+    # Checking that index_Si is within an episode and that the typed-in value of S_i is one of the
+    # legitimate values
     assert index_tSi >= 0 and index_tSi <= (
         num_steps - 1
     ), "Invalid random variable index."
@@ -552,21 +607,18 @@ def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_di
 
         plt.figure()
         x = np.arange(num_episodes * num_steps)
-
-        # Selecting the realisation g of S_i for which to represent the change in probability at every step during the experiment.
-        # Note 1: here g and i are fixed, they are the goal state and the final time step respectively (this can be changed when the data is
-        # stored in self.Qt_pi in the perception method of actinf.py by changing the corresponding parameter in the phenotype file). So,
-        # we are interested in looking at how the agent's belief on where it will be at the last time step in an episode change/is updated
-        # at every time step during the experiment.
+        # Selecting the realization g of S_i for which to represent the change in probability at *every*
+        # step during the experiment.
+        # Note 1: g and i are here determined by corresponding parameters in the phenotype file for
+        # the agent (and not throught the command line as done in the previous function).
+        # If g and i are the goal state and the final time step respectively, we are visualizing how the
+        # agent's belief about where it will be at the last time step in an episode change/is updated
+        # throughout the experiment.
         for s in range(num_states):
             if s == value_tSi:  # 8
                 r_tstep = index_tSi  # 4
                 y = avg_prob[:, p, s, :].flatten()
                 plt.plot(x, y, ".-", label=f"$Q(S_{r_tstep}={s}|\\pi_{p})$")
-
-                # Decomment if plotting the change in probability at every time step, and comment the next two lines
-                # plt.xticks(np.arange(0, num_episodes * num_steps, step=num_steps))
-                # plt.xlabel('Steps')
 
                 plt.xticks(
                     np.arange(0, (num_episodes * num_steps) + 1, step=x_ticks_tstep)
@@ -587,17 +639,26 @@ def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_di
 
 
 def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
-    """Plotting state-observation mappings (emission probabilities), matrix A of size (num_states, num_states), averaged over the runs.
-    The columns of A are categorical distributions so their elements must sum to one, e.g. column 0 (zero) tells you the probability of
-    the agent believing to be in a certain state when it is in state 0 (zero), e.g. P(O=0|S=0). If the agent has sound beliefs, then in state
-    0 (zero) it should believe to be in state 0. In other words, matrix A should approximate an identity matrix.
+    """Plotting state-observation mappings (emission probabilities), i.e., matrix A of size
+    (num_states, num_states), averaged over the runs.
+
+    The columns of A are categorical distributions so their elements must sum to one, e.g., column 0 (zero)
+    tells you the probability of the agent believing to be in a certain state when it is in state 0 (zero),
+    e.g. P(O=0|S=0). If the agent has sound beliefs, then in state 0 (zero) it should believe to be in state 0.
+    In other words, matrix A should approximate an identity matrix.
 
     Inputs:
-        - data_path (string): file path where the data was stored (i.e. where log_data was saved);
-        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+
+    - file_data_path (string): file path where the data was stored (i.e. where log_data was saved);
+    - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+    - state_A (integer): index i to slice a certain column of A to represent the evolution of Q(O|S_i);
+    - save_dir (string): directory where to save the images.
+
     Outputs:
-        - plot showing the emission probabilities for a specific state (i.e. a column of A) over the entire experiment;
-        - heatmap showing matrix A at the end of the experiment to see what the agent learned.
+
+    - plot showing the emission probabilities for a specific state, S_i (i.e., a column of A), over the entire
+      experiment;
+    - heatmap showing matrix A at the end of the experiment to see what the agent learned.
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'so_mappings'
@@ -607,16 +668,18 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
     num_steps = data["num_steps"]
     num_states = data["num_states"]
     so_mappings = data["so_mappings"]
-    # Making sure state_A is one of the of the columns of matrix A (i.e. one of the state for which we want to see the
-    # the state-observation mapping)
+    # Making sure state_A is one of the of the columns of matrix A (i.e. one of the state for which
+    # we want to see the the state-observation mapping)
     assert state_A >= 0 and state_A <= num_states - 1, "Invalid state."
 
     # Computing the mean (avg) and std of the emission probabilities over the runs
     # Note 1: so_mapping is of shape (num_runs, num_episodes, num_states, num_states)
     avg_som = np.mean(so_mappings, axis=0).squeeze()
     std_som = np.std(so_mappings, axis=0).squeeze()
-    # Selecting a specific state-observation mapping, i.e. the emission probabilities when in state 8 stored in the corresponding column of A
-    # Note 2: we are basically singling out a column of A to see how it changes episode after episode (due to the agent learning)
+    # Selecting a specific state-observation mapping, i.e., the emission probabilities when in state
+    # state_A, stored in the corresponding column of A
+    # Note 2: we are basically singling out a column of A to see how it changes episode after episode
+    # (due to the agent learning)
     s = state_A
     avg_som_state = avg_som[:, :, s].squeeze()
     std_som_state = std_som[:, :, s].squeeze()
@@ -629,10 +692,11 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
     # Setting up plotting markers and a counter to cycle through them
     markers = [".", "+", "x"]
     counter = 0
-
-    # Looping over every element of the selected column of A to plot how that value (probability) changes episode after episode
-    # Note 3: we are plotting how every single emission probability from state s changes during the experiment. The number of those
-    # probabilities is given by avg_som_state.shape[1] (the second dimension of avg_som_state).
+    # Looping over every element of the selected column of A to plot how that value (probability)
+    # changes episode after episode
+    # Note 3: we are plotting how every single emission probability from state S_i changes during
+    # the experiment. The number of those probabilities is given by avg_som_state.shape[1]
+    # (the second dimension of avg_som_state).
     for c in range(avg_som_state.shape[1]):
         counter += 1
         m = None
@@ -642,10 +706,10 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
             m = 1
         else:
             m = 2
-        # Selecting a single emission probability from state s
+        # Selecting a single emission probability from state S_i
         y = y_data[:, c]
-        # TODO: the proper marker does not seem to be selected and used in the plot (yes, because with 8 states you have m < 10 so they all get
-        # the same marker...)
+        # TODO: the proper marker does not seem to be selected and used in the plot
+        # (yes, because with 8 states you have m < 10 so they all get the same marker...)
         ax1.plot(x, y, marker=markers[m], linestyle="-", label=f"$P(O={c}|S={s})$")
         # ax1.fill_between(x, y-std_som_state[:, c], y+std_som_state[:, c], alpha=0.3)
         ax1.fill_between(
@@ -701,18 +765,28 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
 
 
 def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir):
-    """Plotting transition probabilities, matrices B (one for each available action) of size (num_states, num_states), averaged over the runs.
-    The columns of a B matrix are categorical distributions so their elements must sum to one, e.g. column 0 (zero) of B_up (the transition
-    matrix for action up) gives the agent the probabilities of landing in the various states by going up from state 0 (zero). If the agent has
-    learned correct transitions (and the environment is not stochastic), then going up from state 0 (zero) should lead to a specific state.
-    In other words, columns of matrices B should have all values close to 0 except for one close to 1.
+    """Plotting transition probabilities, i.e., matrices B (one for each available action) of size
+    (num_states, num_states), averaged over the runs.
+
+    The columns of a B matrix are categorical distributions so their elements must sum to one, e.g.,
+    column 0 (zero) of B_up (the transition matrix for action up) gives the agent the probabilities
+    of landing in the various states by going up from state 0 (zero). If the agent has learned correct
+    transitions (and the environment is not stochastic), then going up from state 0 (zero) should lead
+    to a specific state. In other words, columns of matrices B should have all values close to 0 except
+    for one close to 1.
 
     Inputs:
-        - data_path (string): file path where the data was stored (i.e. where log_data was saved);
-        - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+
+    - file_data_path (string): file path where the data was stored (i.e. where log_data was saved);
+    - x_ticks_estep (integer): step for the ticks in the x axis when plotting as a function of episode number;
+    - action_B (integer): index to select the action for which to represent the transition probabilities;
+    - save_dir (string): directory where to save the images;
+
     Outputs:
-        - plot showing the transitions probabilities for a specific state and action (i.e. a column of a B matrix) over the entire experiment;
-        - heatmap showing matrix B for a certain action at the end of the experiment to see what the agent learned.
+
+    - plot showing the transitions probabilities for a specific state and action (i.e., a column of a B matrix)
+      over the entire experiment;
+    - heatmap showing matrix B for a certain action at the end of the experiment to see what the agent learned.
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'transition_prob'
@@ -729,7 +803,8 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
     # Making sure state_B and action_B are valid values to select a matrix B and slice it
     assert action_B >= 0 and action_B <= 3, "Invalid action index."
     assert state_B >= 0 and state_B <= num_states - 1, "Invalid state index."
-    # Selecting the avg and std transition probabilities for a specific action (a=0, a=1, a=2, a=3) throughout the experiment, i.e. for B_a
+    # Selecting the avg and std transition probabilities for a specific action (a=0, a=1, a=2, a=3)
+    # throughout the experiment, i.e. for B_a
     a = action_B
     transition_prob_action = avg_transitions_prob[:, a, :, :].squeeze()
     std_tpa = std_transitions_prob[:, a, :, :].squeeze()
@@ -737,22 +812,22 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
     s = state_B
     transition_state = transition_prob_action[:, :, s].squeeze()
     std_transition_state = std_tpa[:, :, s].squeeze()
-
-    # Plotting the transition probabilites from state s for action a throughout the experiment. For example, we could plot the transition
-    # probability from the state just before the goal for the action that would bring the agent there to see if the agent learned the way to get
-    # to the goal state (done here).
+    # Plotting the transition probabilites from state s for action a throughout the experiment.
+    # For example, we could plot the transition probability from the state just before the goal for
+    # the action that would bring the agent there to see if the agent learned the way to get to the
+    # goal state.
     x = np.arange(num_episodes)
     y_data = transition_state[:, :]
 
     fig1, ax1 = plt.subplots()
-
     # Setting up plotting markers and a counter to cycle through them
     markers = [".", "+", "x"]
     counter = 0
-
-    # Looping over every element of the selected column of B to plot how that value (probability) changes episode after episode
-    # Note 1: we are plotting how every single transition probability from state s changes during the experiment. The number of those
-    # probabilities is given by transition_state.shape[1] (the second dimension of transition_state).
+    # Looping over every element of the selected column of B to plot how that value (probability) changes
+    # episode after episode
+    # Note 1: we are plotting how every single transition probability from state s changes during the
+    # experiment. The number of those probabilities is given by transition_state.shape[1] (the second
+    # dimension of transition_state).
     for c in range(transition_state.shape[1]):
         counter += 1
         m = None
@@ -825,63 +900,20 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
     plt.show()
 
 
-# def plot_Qs_pi_final(file_data_path, num_episodes, num_steps, num_states):
-#     '''Visualising the Q(s|pi) at the end of the experiment.
-#     Inputs:
-#         - data_path (string): file path where transition probabilities were stored (i.e. where log_data was saved)
-#     Outputs:
-#         - heatmap showing....
-#     '''
-
-#     # Retrieving the data dictionary and extracting the content of the key 'policy_state_prob'
-#     data = np.load(file_data_path, allow_pickle=True).item()
-#     Qs_pi_prob = data['policy_state_prob']
-#     # Averaging the Q(s|pi) over the runs
-#     avg_Qspi = np.mean(Qs_pi_prob, axis=0).squeeze()
-#     # Selecting the probabilities for the last episode only
-#     last_episode_Qspi = avg_Qspi[-1, :, :, :]
-
-#     # Heatmap of the Q(s|pi) for every policy at the end of the experiment (after last episode)
-#     for p in range(last_episode_Qspi.shape[0]):
-
-#         # Creating figure and producing heatmap for policy p
-#         fig, ax = plt.subplots()
-#         im = ax.imshow(last_episode_Qspi[p, :, :].squeeze())
-
-#         # Setting top minor ticks to separate the different Q(s|pi) and adding corresponding labels
-#         qspi_labels = [r'$Q(s_{0}|\pi)$', r'$Q(s_{1}|\pi)$', r'$Q(s_{2}|\pi)$', r'$Q(s_{3}|\pi)$', r'$Q(s_{4}|\pi)$', r'$Q(s_{5}|\pi)$', r'$Q(s_{6}|\pi)$']
-#         ax.set_xticks(np.arange(last_episode_Qspi.shape[2])-0.5, minor=True)
-#         ax.set_xticklabels(qspi_labels, minor=True)
-#         ax.tick_params(which='minor', top=True, bottom=False, labeltop=True, labelbottom= False)
-#         ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
-
-#         plt.setp(ax.get_xticklabels(minor=True), ha="left", rotation=30)
-
-#         # Loop over data dimensions and create text annotations.
-#         # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond to y-x Cartesian coordinates
-#         for i in range(num_states):
-#             for j in range(num_steps):
-#                 text = ax.text(j, i, f'{last_episode_Qspi[p, i, j]:.3f}', ha="center", va="center", color="w", fontsize='small')
-
-#         # Create colorbar
-#         cbar = ax.figure.colorbar(im, ax=ax)
-#         cbar.ax.set_ylabel('Probability', rotation=-90, va="bottom")
-
-#         ax.set_xlabel('Time Steps')
-#         ax.set_ylabel('States', rotation=90)
-#         ax.set_title(f'Categorical Distributions over States for Policy {p} at Every Time Step')
-
-#         plt.show()
-
-
 def plot_Qs_pi_final(file_data_path, save_dir):
-    """Visualising the Q(S_i|pi) for each policy at the end of the experiment, where i is in [0,...,num_steps-1] and indicates the time step
-    during an episode. Note that the the Q(S_i|pi) are categorical distributions telling you the state beliefs the agent has for each episode's
-    time step.
+    """Visualising the Q(S_i|pi) for each policy at the end of the experiment, where i is in
+    [0,...,num_steps-1] and indicates the time step during an episode. Note that the the Q(S_i|pi)
+    are categorical distributions telling you the state beliefs the agent has for each episode's time step.
+
     Inputs:
-        - data_path (string): file path where transition probabilities were stored (i.e. where log_data was saved);
+
+    - file_data_path (string): file path where transition probabilities were stored
+      (i.e. where log_data was saved);
+    - save_dir (string): directory where to save the images;
+
     Outputs:
-        - heatmap showing the Q(S_i|pi) for each policy at the end of the experiment.
+
+    - heatmap showing the Q(S_i|pi) for each policy at the end of the experiment.
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'policy_state_prob'
@@ -919,7 +951,8 @@ def plot_Qs_pi_final(file_data_path, save_dir):
         plt.setp(ax.get_xticklabels(minor=True), ha="left", rotation=30)
 
         # Loop over data dimensions and create text annotations.
-        # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond to y-x Cartesian coordinates
+        # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond
+        # to y-x Cartesian coordinates
         for i in range(num_states):
             for j in range(num_steps):
                 text = ax.text(
@@ -960,7 +993,7 @@ def plot_oa_sequence(file_data_path, num_episodes, num_steps):
     Outputs:
         - plot showing....
 
-    NOTE USED/REVISED!!!
+    NOTE: THIS FUNCTION IS NOT USED, AND SHOULD BE REVISED
     """
 
     # Retrieving the data dictionary and extracting the content of required keys, e.g. 'observations' and 'actual_action_sequence'
@@ -980,23 +1013,36 @@ def plot_oa_sequence(file_data_path, num_episodes, num_steps):
 
 
 def plot_state_visits(file_path, v_len, h_len, save_dir):
-    """Plotting the state visits heatmap showing the frequency with which the agent has visited the maze's tiles.
-    Inputs:
-        - filepath: the file path where the cumulative reward data was stored while running the experiment;
-        - v_len (integer): vertical length of the environment;
-        - h_len (integer): horizontal length of the environment.
-    Outputs:
-        - heatmap showing the frequency with which maze's tiles have been visited.
+    """Plotting the state visits heatmap showing the frequency with which the agent has visited the
+    maze's tiles.
 
-    Note 1: here ax.imshow() is used to produce the heatmap. If you use plt.colormesh (for more flexibility), because of the way it works,
-    the data has to be reshaped, transposed and rotated 90 degrees. More in detail, consider for example the top-left tile in a 6-by-9 maze,
-    that tile corresponds to state 0 and is the first value in the vector 'average_state_visits'. When you reshape that array, you get a matrix
-    of shape (6,9) and the state 0 average is at location [0,0] in the matrix. In other words, the matrix is isomorphic to the pictorial
-    representation of the maze. However, plt.colormesh takes the values in the first row of the matrix (which is the top row in the maze) and by
-    default plots them using their matrix coordinates to access some graph coordinates in X and Y. These are arrays of shape (7,10) that by
-    default in this example look like X = [[0, 1,..,7,8,9],..,[0, 1,..,7,8,9]] and Y = [[0,..0,],..[6,..6]]; these graph coordinates are used
-    to draw the corners of the bounding squares in the colormesh grid of the chart. So, the values of the top row in the maze end up at the bottom
-    of the chart (if nothing is done). The optional array arguments X and Y can be manually set (if you don't want to reshape the data).
+    Inputs:
+
+    - file_path: the file path where the cumulative reward data was stored while running the experiment;
+    - v_len (integer): vertical length of the environment;
+    - h_len (integer): horizontal length of the environment.
+
+    Outputs:
+
+    - heatmap showing the frequency with which maze's tiles have been visited.
+
+    Note 1: ax.imshow() is used to produce the heatmap. Because of the way plt.colormesh works, the data
+    has to be reshaped, transposed and rotated 90 degrees.
+
+    Detailed explanation/example:
+
+    Consider for example the top-left tile in a 6-by-9 maze, that tile corresponds to
+    state 0 and is the first value in the vector 'average_state_visits'. When you reshape that array,
+    you get a matrix of shape (6,9) and the state 0 average is at location [0,0] in the matrix.
+    In other words, the matrix is isomorphic to the pictorial representation of the maze.
+    However, plt.colormesh takes the values in the first row of the matrix (which is the top row in the maze)
+    and by default plots them using their matrix coordinates to access some graph coordinates in X and Y.
+    These are arrays of shape (7,10) that by default in this example look like
+    X = [[0, 1,..,7,8,9],..,[0, 1,..,7,8,9]] and Y = [[0,..0,],..[6,..6]];
+    these graph coordinates are used to draw the corners of the bounding squares in the colormesh grid of
+    the chart.
+    So, the values of the top row in the maze end up at the bottom of the chart (if nothing is done).
+    The optional array arguments X and Y can be manually set (if you don't want to reshape the data).
     For more info, see the matplotlib documentation.
     """
 
@@ -1023,7 +1069,8 @@ def plot_state_visits(file_path, v_len, h_len, save_dir):
     ax.grid(which="major", color="grey", linestyle="-", linewidth=3)
 
     # Loop over data dimensions and create text annotations.
-    # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond to y-x Cartesian coordinates
+    # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond
+    # to y-x Cartesian coordinates
     for i in range(env_matrix.shape[0]):
         for j in range(env_matrix.shape[1]):
             text = ax.text(
