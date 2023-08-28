@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "AiFGym"
+version = "0.1.0"
+dependencies = [
+    "python >= 3.9",
+    "numpy",
+    "matplotlib",
+    "pandas",
+    "scipy"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tasks*", "scripts*"]
+namespaces = false

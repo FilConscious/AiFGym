@@ -27,7 +27,7 @@ def main():
     parser.add_argument("--step_fe_pi", "-fpi", type=int, default=-1)
     # Step for the ticks in the x axis for plotting a variable as a function of the number of episodes
     parser.add_argument("--x_ticks_estep", "-xtes", type=int, default=1)
-    # Step for the ticks in the x axis for plotting a variable as a function of the total number of
+    # Step for the ticks in the x axis for plotting a random variable as a function of the total number of
     # timesteps in an experiment
     parser.add_argument("--x_ticks_tstep", "-xtts", type=int, default=50)
     # Arguments for selecting a random variable S_i and its desired value g to plot the Q(S_i=g|pi)
