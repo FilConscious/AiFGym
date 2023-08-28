@@ -9,104 +9,105 @@
 
 The repo allows you train an active inference agent in a discrete, grid-world, custom environment, created using Gymnasium (https://gymnasium.farama.org/), a regularly maintained fork of Open AI's Gym library (which is no longer maintained).
 
-Instruction to install the required packages and visit the Active Inference Zoo. This guide assumes that the user
-has installed Python through Anaconda or similar distributions.
+This guide assumes that the user has installed [[https://git-scm.com/downloads][Git]] and Python (through [[https://www.anaconda.com/download][Anaconda]] or similar distributions) into their system.
 
-1. Sit back and relax, ideally with your favourite beverage and/or snack.
+1. Open a terminal and move into your preferred local folder or working directory:
 
-2. Clone the Github repository (say, with Github Desktop) or download it into your favourite local folder.
+   ~cd /home/working-dir~
 
-3. Open an Anaconda Prompt and go to the folder where you downloaded the files (using cd command).
+2. Clone the Github repository (or download it into the same folder):
 
-4. Create a conda environment and install requirements either using pip or conda:
+   ~git clone https://github.com/FilConscious/AiFGym.git~
 
-	4a. If you use pip, first create the environment with conda:
+3. Create Python virtual environment or conda environment with a recent version of Python, e.g.:
 
-		`> conda create -n myenv`
+   ~conda create --name aifgym-env python=3.10~
 
-	or
+4. Activate the environment:
 
-		`> conda create --prefix <path to your environment>`
+   ~conda activate aifgym-env~
 
-	then,
+5. Install the package:
 
-		`> pip install -r requirements.txt`
-
-	4b. If you use conda, create the environment and install the packages at the same time with:
-
-		`> conda env create -n <name you picked> -f /path/to/aiz.yml`
-
-	or,
-
-		`> conda env create -p <path to your environment> -f /path/to/aiz.yml`
-
-5. Activate your environment with:
-
-	`> conda activate <environment name>`
-
-or,
-
-	`> conda activate /path/to/your_environment`
-
-6. Change directory (cd command) to `~/your_environment/discrete_sas/o_maze`.
-
-7. Run the main Python script by typing:
-
-	`> python main_ai_exp0.py`
-
-8. Hope for the best and keep your fingers crossed.
-
-
-For more info on managing conda environments visit the official documentation at:
-https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
-
-
-Please contact me at ft98@sussex.ac.uk or filippo.torresan@gmail.com, if:
-
-	- Preparing for your visit to the Active Inference Zoo appears to be impossible;
-	- Entering the zoo turns out to be more difficult than what the above guide suggests;
-	- Visiting the zoo led you to a state of confusion;
-	- You have encountered improbable beings;
-	- After the visit, your free energy/expected free energy was not minimised;
-	- Any other compelling issue.
-
+   ~pip install --editable .~
+          
 * Overview of the Repository
 
-The core script is ~../scripts/main.py~ which defines an argument parser and passes the arguments provided through the command line to the train function of a task (Python) module defined in ~../active_inf/tasks/~ to train an active inference agent; the task module (e.g., ~../active_inf/tasks/task1.py~) is imported dynamically depending on the task name the user has provided through the command line (see [[How to Run an Experiment]]).
+The core script is =../scripts/main.py= which defines an argument parser and passes the arguments provided through the command line to the train function of a task (Python) module defined in =../active_inf/tasks/= to train an active inference agent; the task module (e.g., =../active_inf/tasks/task1.py=) is imported dynamically depending on the task name the user has provided through the command line (see [[How to Run an Experiment]]).
 
-Importantly, ~../active_inf/~ is the Python package (a folder with an ~__init__.py~ file) storing all the sub-packages and modules used to train an active inference agent. In addition to the task sub-package, it includes the following sub-packages:
+Importantly, =../active_inf/= is the Python package (a folder with an =__init__.py= file) storing all the sub-packages and modules used to train an active inference agent. In addition to the task sub-package, it includes the following sub-packages:
 
-- ~../agents/~ with the module ~aif_agent.py~ specifying the active inference agent class
-- ~../phts/~ for defining the "phenotype" of an active inference agent in a certain environment, chiefly this involves specifying the desired observations/states of the agent (i.e., its priors) as well certain defining feature of the environment
-- ~../visuals/~ contains modules for visualizing/plotting data from an experiment
+- =../agents/= with the module =aif_agent.py= specifying the active inference agent class
+- =../phts/= for defining the "phenotype" of an active inference agent in a certain environment, chiefly this involves specifying the desired observations/states of the agent (i.e., its priors) as well certain defining feature of the environment
+- =../visuals/= contains modules for visualizing/plotting data from an experiment
 
-In the working directory, there is also the package ~../envs/~ for defining (or downloading) different environments in which to train the agent, e.g., ~../envs/grid_envs~ is a sub-package storing modules for grid-world environments.
+In the working directory, there is also the package =../envs/= for defining (or downloading) different environments in which to train the agent, e.g., =../envs/grid_envs= is a sub-package storing modules for grid-world environments.
 
-For example, ~../active_inf/tasks/task1.py~ is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from ~../envs/grid_envs/grid_world_v0.py~, the active inference agent class from ~../agents/aif_agent.py~, and its correspoding phenotype from ~../phts/~ (using an utility function in ~../tasks/utils.py~). Then, it defines the train function instantiating at every run both an agent and the corresponding environment who interact for a certain number of episodes (training loop). The train function is called in ~../scripts/main.py~, if "task1" is the task name passed through the command line (so every new task module should have a train function).
+For example, =../active_inf/tasks/task1.py= is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from =../envs/grid_envs/grid_world_v0.py=, the active inference agent class from =../agents/aif_agent.py=, and its correspoding phenotype from =../phts/= (using an utility function in =../tasks/utils.py=). Then, it defines the train function instantiating at every run both an agent and the corresponding environment who interact for a certain number of episodes (training loop). The train function is called in =../scripts/main.py=, if ‘task1’ is the task name passed through the command line (so every new task module should have a train function).
 
 * How to Run an Experiment
 
-To run a script using the =active_inf= module write in a terminal:
+To train a vanilla active inference agent in a grid-like environment, you have to execute the main script from the terminal while passing to it the appropriate parameters.
 
-~python -m scripts.main -task task1 -env GridWorldv0 -nr 1 -ne 2 -pt states -as kd~
+More explicitly, after having cloned the repo (see [[Installation]]), you would execute the following instructions in the terminal (replace ~name-of-repo~ and ~name-of-env~ with the expression you pick to save the repo locally and the one for the conda environment you created, respectively):
 
-To visualize the data:
+1. Move into the local repo directory
 
-~python -m active_inf.visuals.visualiz -i 4 -v 8 -ti 0 -tv 8 -vl 3 -hl 3~
+   ~cd home/././name-of-repo/~
 
-# Tests
+2. Activate conda environment
 
-Running some test in the toy grid world and jotting down some observation to check that everything works as expected.
+   ~conda activate name-of-env~
 
-- *Test 1*: Learning State Observation Mapping (matrix A) with Knowledge of State-Transitions (matrix B)
+3. Execute Python script for training
 
-IMPORTANT: this test was run with high preferences over every single state of the optimal trajectory (full reward) as opposed to a single high preference over the goal state (sparse reward).
+   ~python -m scripts.main -task task1 -env GridWorldv0 -nr 1 -ne 2 -pt states -as kd~
 
-Test ran using the following command:
+4. Execute Python script for data visualization
 
-~python -m scripts.main -task task1 -env GridWorldv0 -nr 1 -ne 50 -pt states -as kd -lA -nvs 5~
+   ~python -m active_inf.visuals.visualiz -i 4 -v 8 -ti 0 -tv 8 -vl 3 -hl 3~
 
-So, we are training the agent for 50 episodes and we require it to learn the state-observation mapping (A matrix) using the ~-lA~ flag.
+What follows is a table summarizing the various arguments that could be used for instruction line (3); it should give you an idea of the kinds of experiments that can be run at the moment (or that potentially could be run, after some modifications/addition to the code).
 
+| Argument             | Shorthand | Explanation                                            | Example                            |
+|----------------------+-----------+--------------------------------------------------------+------------------------------------|
+| ~--task_name~        | ~-task~   | Task identifier (involving a specific environment)     | ~task1~                            |
+| ~--env_name~         | ~-evn~    | Environment on which the agent is trained              | ~GridWorldv0~                      |
+| ~--num_runs~         | ~-nr~     | Number experiment runs                                 | ~30~ (default)                     |
+| ~--num_episodes~     | ~-ne~     | Number of episodes for each run                        | ~100~ (default)                    |
+| ~--pref_type~        | ~-pt~     | Whether the agent has preferred states or observations | ~states~ (default)                 |
+| ~--action_selection~ | ~-as~     | Action selection strategy                              | ~kd~ (default)                     |
+| ~--learn_A~          | ~-lA~     | Whether state-observation learning is enabled          | ~-lA~ (the value ~True~ is stored) |
+| ~--learn_B~          | ~-lB~     | Whether state-transition learning is enabled           | ditto                              |
+| ~--learn_D~          | ~-lD~     | Whether initial state learning is enabled              | ditto                              |
+| ~--num_videos~       | ~-nvs~    | Number of recorded videos                              | ~10~                               |
+
+What follows is a table summarizing the various arguments that could be used for instruction line (4):
+
+| Argument          | Shorthand | Explanation                                                                                           | Example                       |
+|-------------------+-----------+-------------------------------------------------------------------------------------------------------+-------------------------------|
+| ~--step_fe_pi~    | ~-fpi~    | Timestep for which to plot the free energy                                                            | ~-1~ (the last step, default) |
+| ~--x_ticks_estep~ | ~-xtes~   | Step for x-axis ticks (in plotting a variable as a function of episodes' number)                      | ~1~ (default)                 |
+| ~--x_ticks_tstep~ | ~-xtts~   | Step for x-axis ticks (in plotting a variable as a function of total number of timesteps)             | ~50~ (default)                |
+| ~--index_Si~      | ~-i~      | Index \(i\) for selecting a random variable \(S_{i}\)                                                    | ~0~ (default)                 |
+| ~--value_Si~      | ~-v~      | Index \(j\) for selecting a value of \(S_{i}\) (used to plot \(Q(S_{i}= s_{j}\vert \pi)\) at a certain episode step) | ~0~                           |
+| ~--index_tSi~     | ~-ti~     | Index \(i\) for selecting a random variable \(S_{i}\)                                                    | ~0~ (default)                 |
+| ~--value_tSi~     | ~-tv~     | Index \(j\) for selecting a value of \(S_{i}\) (used to plot \(Q(S_{i}= s_{j}\vert \pi)\) at /every/ time step)      | ~0~                           |
+| ~--state_A~       | ~-sa~     | Index \(i\) for selecting a \(Q(O_{i} = o_{j}\vert s_{})\) (a column of matrix \(\mathbf{A}\)) to plot             | ~0~ (default)                 |
+| ~--state_B~       | ~-sb~     | Index \(i\) for selecting a \(Q_{a}(S_{j}_{}\vert S_{i})\) (a column of matrix \(\mathbf{B}\)) to plot                | ~0~ (default)                 |
+| ~--action_B~      | ~-ab~     | Index \(a\) to pick the corresponding matrix \(\mathbf{B}\) to plot \(Q_{a}(S_{j}_{}\vert S_{i})\)                    | ~0~ (default)                 |
+| ~--v_len~         | ~-vl~     | Height of the environment                                                                             | ~3~                           |
+| ~--h_len~         | ~-hl~     | Width of the environment                                                                              | ~3~                           |
+
+
+For a more detailed tutorial on the kinds of experiments one could run, see the companion paper.
 * Resources
+
+** Managing Python virtual enviroments
+
+venv, conda, poetry
+
+(more info on managing Python environments can be found in the Conda's [[https://docs.conda.io/projects/conda/en/stable/user-guide/index.html][User Guide]])
+
+
 * References
