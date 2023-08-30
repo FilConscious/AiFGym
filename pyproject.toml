@@ -4,16 +4,31 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "AiFGym"
-version = "0.1.0"
+authors = [
+    {name = "Filippo Torresan", email = "merlin.onirik.d98xe@slmail.me"},
+]
+description = "My package description"
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["active inference", "gridworld"]
+license = {text = "Apache License 2.0"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
 dependencies = [
     "python >= 3.9",
     "numpy",
     "matplotlib",
     "pandas",
-    "scipy"
+    "scipy",
+    "gymnasium >= 0.27"
 ]
+dynamic = ["version"]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["tasks*", "scripts*"]
 namespaces = false
+
+[tool.setuptools.dynamic]
+version = {attr = "scripts.__init__.VERSION"}
