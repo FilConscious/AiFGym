@@ -124,6 +124,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Org-mode files
+.org
+
 # Conda environment folder
 conda_env/
 
