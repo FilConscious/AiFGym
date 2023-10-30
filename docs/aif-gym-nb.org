@@ -135,3 +135,22 @@ List of files that can be deleted:
 I found some duplicate code that computes policy-independent state probabilities, reflecting a doubt that I had about /when/ to perform that computation, after state-estimation (perception) or after policy updating (planning)?
 
 I think it makes more sense to do it after policy updating (and that is probably why I had commented out the first instance of those lines of code). However, those updated probabilities are usually not used by the agent, except maybe in the implementation of [[cite:&Sales2019]] (I need to double-check this).
+
+** 2023-10-04: Pip issue with setuptools installation
+
+I stumbled upon the following error when trying to install the AiFGym package with ~pip install -e .~:
+
+~ERROR: Could not find a version that satisfies the requirement python==3.10 (from versions: none)~
+~ERROR: No matching distribution found for python==3.10~
+
+The error seems to be about ~pip~ not finding the required version of Python (as specified in the =project.toml= file of the package).
+
+But I am running the installation inside a new conda environment created with an appropriate version of Python. So I don't understand why ~pip~ is throwing this error.
+
+After removing two lines from the =project.toml= that specified Python as a requirement, the installation worked and all the dependencies were installed.
+
+It seems the installation procedure failed to recognize the version of Python installed in the activated conda environment.
+
+** 2023-10-05: Pip issue resolved
+
+The mistake/bug was listing python among the dependencies in the =pyproject.tom=, having =requires-python = ">=3.10"= under =[project]= heading is sufficient.

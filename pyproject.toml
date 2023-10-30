@@ -9,14 +9,14 @@ authors = [
 ]
 description = "My package description"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["active inference", "gridworld"]
 license = {text = "Apache License 2.0"}
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "python >= 3.9",
+    "python >= 3.10",
     "numpy",
     "matplotlib",
     "pandas",
