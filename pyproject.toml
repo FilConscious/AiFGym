@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "AiFGym"
+name = "aifgym"
 authors = [
     {name = "Filippo Torresan", email = "merlin.onirik.d98xe@slmail.me"},
 ]
@@ -20,14 +20,13 @@ dependencies = [
     "matplotlib",
     "pandas",
     "scipy",
+    "opencv-python",
     "gymnasium >= 0.27"
 ]
 dynamic = ["version"]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["tasks*", "scripts*"]
-namespaces = false
+where = ["aifgym"]
 
 [tool.setuptools.dynamic]
 version = {attr = "scripts.__init__.VERSION"}

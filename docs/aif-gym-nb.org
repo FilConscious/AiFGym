@@ -154,3 +154,43 @@ It seems the installation procedure failed to recognize the version of Python in
 ** 2023-10-05: Pip issue resolved
 
 The mistake/bug was listing python among the dependencies in the =pyproject.tom=, having =requires-python = ">=3.10"= under =[project]= heading is sufficient.
+
+** 2023-10-30: Errors with relative import
+
+Upon trying to run a second experiment with active inference, I've got a relative import error. This might be due to some modification I made to configure the setuptools functionality for the installation of the repo.
+
+The line throwing the error was in the =main.py=, i.e.:
+
+~task_module = importlib.import_module("..active_inf.tasks." + task_module_name)~
+
+And the complaint was ~ImportError: attempted relative import beyond top-level package~. This happens when you run the main script with ~python -m scripts.main -task task1 -env GridWorldv0 -nr 1 -ne 2 -pt states -as kd~ /inside/ the cloned repo directory.
+
+I think that using that instruction tells Python to consider =script= as the top-level package (instead of =AiFGym=). When you want to import the task module with the =importlib= functionality, using the two dots asks Python to go beyong that top-level package, which is not allowed, apparently; rather, Python does not have or store information about what there is beyond that point (see these *stack overflow* answers [[https://stackoverflow.com/questions/30669474/beyond-top-level-package-error-in-relative-import][beyond top level package error in relative import]] and other links therein).
+
+Before I added the setuptools functionality the code was working fine. I suspect that adding that functionality or adding some =ini.py= or changing the package structure was responsible for the error, but I cannot pinpoint exactly what produced it.
+
+Thinking more about it, it might have to do with the fact that this time I cloned and /installed/ the package with ~pip install --editable .~ this time. According to the explanation at [[https://www.reddit.com/r/learnpython/comments/ayx7za/how_does_pip_install_e_work_is_there_a_specific/?rdt=36064][How does `pip install -e` work?]], that instruction installs (copies) the package in the =site-package= folder of your Python installation. Now the question is whether running the main Python module with  ~python -m AiFGym.scripts.main ...~ is actually using the site-package version of the package.
+
+Mmmh... Maybe not because when I used ~python -m scripts.main -task ...~ there was no package indication. However, that might still be important because, as it is clear in the solution below, I have to specify the package name now, i.e., =AiFGym= in the ~importlib~ command. Python knows about that package becaue I have installed it.
+
+The implemented solution involves two main corrections:
+
+1. To specify that ~active_inf~ is a submodule of the ~AiFGym~ package, by writing:
+
+   ~task_module = importlib.import_module(".active_inf.tasks." + task_module_name, "AiFGym")~
+
+2. Run/invoke the Python module ~script.main~ from the directory in which the package ~AiFGym~ is located and by adding the specification of that package, i.e., ~AiFGym.script.main~. This is essential otherwise Python complains that it cannot find any ~AiFGym~ module after you make correction (1).
+
+One of the downside of this solution is that the downloaded package (i.e., the cloned repo) cannot be renamed.
+
+** 2023-10-31: ModuleNotFound Error
+
+The blocking issue today was that running ~python -m AiFGym...~ threw a =ModuleNotFound= error. That was unexpected because installing the package with ~pip install -e .~ should make the package visible to Python (in the =site-package= of the Python installation of the created conda environment).
+
+After browsing for more knowledge on how Python looks for modules locally, it turns out that the basic error I made was having all the code inside a directory whose name (=/./cde-AifGym=) did not correspond to the name of the installed package (=AiFGym=). That directory was stored in the =site-package= folder of the package, but this tells Python to look into /that/ folder for a package name =AiFGym=, which was not there.
+
+The solution is simply to create another folder called =AiFGym= inside =/./cde-AiFGym/=. Actually it is not that simple because I'm using a flat layout so I have to run ~pip install -e .~ inside the =/AiFGym= folder which then makes Python look inside that folder for the package ~AiFGym~, but the package is not inside itself!
+
+After some reflections, it seems all was due to a bad repo structure. To do successfully all the things above, you need to have a /project root directory/ which contains the =pyproject.toml=, the license, the =README.md= etc. as well as the main package you want to install/use, i.e., ~aifgym~. All the relevant code should go in there so it was a mistake to take out the =env= and the =scripts= folders in this case.
+
+Now I have to update all the dependencies and pointers to folders inside the various files...then try again the installation and running some experiments. Let's see if I got it right this time!

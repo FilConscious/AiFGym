@@ -33,7 +33,7 @@ def get_phenotype(env_name, pref_type, action_selection, learn_A, learn_B, learn
     # Note: this is done to avoid importing all the submodules in phts with 'from phts import *'
     # at the top of the file
     sub_mod = env_name + "_phts"
-    mod_phts = importlib.import_module("active_inf.phts." + sub_mod)
+    mod_phts = importlib.import_module(".phts." + sub_mod, "aifgym")
     # Once the module is imported we instantiate its main function that is used to return agents, environment,
     # and experiment parameters
     func_pt = getattr(mod_phts, env_name + "_pt")

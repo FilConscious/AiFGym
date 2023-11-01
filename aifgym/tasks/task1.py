@@ -15,14 +15,10 @@ import random
 import numpy as np
 from pathlib import Path
 
-# External packages imports
-import gymnasium as gym
-from gym import Env, spaces
-
 # Custom packages/modules imports
 from .utils import get_phenotype
 from ..agents.aif_agent import ActInfAgent
-from ...envs.grid_envs.grid_world_v0 import GridWorldV0
+from ..envs.grid_envs.grid_world_v0 import GridWorldV0
 
 
 def train(params, data_path, data_fn):

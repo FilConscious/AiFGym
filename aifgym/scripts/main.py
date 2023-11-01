@@ -86,11 +86,10 @@ def main():
     # an exception is raised.
     task_module_name = params["task_name"]
     try:
-        task_module = importlib.import_module("active_inf.tasks." + task_module_name)
-    except Exception:
-        print(
-            f'{task_module_name} is an invalid task (no corresponding module in "active_inf/tasks/..").'
-        )
+        task_module = importlib.import_module(".tasks." + task_module_name, "aifgym")
+    except Exception as error:
+        print(f"Something went wrong with the import of the task module: ", error)
+        print(f"{task_module_name} module could not be imported.")
     else:
         # Calling the train function from the imported task module to start agent's training
         task_module.train(params, data_path, "aif_exp" + dt_string)
