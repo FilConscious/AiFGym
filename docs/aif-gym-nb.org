@@ -214,6 +214,10 @@ Okay, trying to remember the last changes I applied. These relate to how to run 
 
    - the problem was that now to perform a relative import with ~importlib.import_module(".phts." + sub_mod)~ you need to add the name of the package, i.e., "aifgym" in this case, so the right command is ~importlib.import_module(".phts." + sub_mod, "aifgym")~
 
-
-
 3. for the visualizations I think the old method is still in place, I need to figure this out and maybe update it
+
+   - yes, I can get the visualizations by running ~python -m aifgym.visuals.visualiz -i 4 -v 8 -ti 0 -tv 8 -vl 3 -hl 3~ inside the project folder
+   - the idea would be to have a command like ~vis-aifgym~ that can be used anywhere to get the pictures, this should require only adding a new line in the corresponding section of the toml, no clear where it should be pointing to though, the ~visualiz.py~ file is enough?
+   - got it, I had a ~main()~ function for the visualizations as well, so by analogy I should simply move that into the ~__init__.py~, yeah, but which one? I think it should be the top-level one
+   - got it, it actually works by simply adding a pointer to a sub-level package. i.e., ~visuals~, and calling the function ~main()~ now moved into the init file inside ~visuals~
+   - so I guess we can delete ~visualiz.py~ now

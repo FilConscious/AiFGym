@@ -1,20 +1,20 @@
 
 # Table of Contents
 
-1.  [Installation](#org93f457a)
-2.  [Overview of the Repository](#org98dc68d)
-3.  [How to Run an Experiment](#org1969eab)
-4.  [Resources](#org54d0257)
-    1.  [Managing Python virtual enviroments](#org924c1b3)
-5.  [References](#orgfb74377)
+1.  [Installation](#org3d8d98a)
+2.  [Overview of the Repository](#orge650a55)
+3.  [How to Run an Experiment](#org7221bf3)
+4.  [Resources](#org2258992)
+    1.  [Managing Python virtual enviroments](#orgcffb5e9)
+5.  [References](#orgd88f0ba)
 
 
 
-<a id="org93f457a"></a>
+<a id="org3d8d98a"></a>
 
 # Installation
 
-The repo allows you train an active inference agent in a discrete, grid-world, custom environment, created using Gymnasium (<https://gymnasium.farama.org/>), a regularly maintained fork of Open AI&rsquo;s Gym library (which is no longer maintained).
+The code in this repo allows you to train an active inference agent in a discrete, grid-world, custom environment, created using Gymnasium (<https://gymnasium.farama.org/>), a regularly maintained fork of Open AI&rsquo;s Gym library (which is no longer maintained).
 
 This guide assumes that the user has installed [Git](https://git-scm.com/downloads) and Python (through [Anaconda](https://www.anaconda.com/download) or similar distributions) into their system.
 
@@ -39,11 +39,11 @@ This guide assumes that the user has installed [Git](https://git-scm.com/downloa
     `pip install --editable .`
 
 
-<a id="org98dc68d"></a>
+<a id="orge650a55"></a>
 
 # Overview of the Repository
 
-The core script is `../scripts/main.py` which defines an argument parser and passes the arguments provided through the command line to the train function of a task (Python) module defined in `../active_inf/tasks/` to train an active inference agent; the task module (e.g., `../active_inf/tasks/task1.py`) is imported dynamically depending on the task name the user has provided through the command line (see [3](#org1969eab)).
+The core script is `../scripts/main.py` which defines an argument parser and passes the arguments provided through the command line to the train function of a task (Python) module defined in `../active_inf/tasks/` to train an active inference agent; the task module (e.g., `../active_inf/tasks/task1.py`) is imported dynamically depending on the task name the user has provided through the command line (see [3](#org7221bf3)).
 
 Importantly, `../active_inf/` is the Python package (a folder with an `__init__.py` file) storing all the sub-packages and modules used to train an active inference agent. In addition to the task sub-package, it includes the following sub-packages:
 
@@ -56,13 +56,13 @@ In the working directory, there is also the package `../envs/` for defining (or 
 For example, `../active_inf/tasks/task1.py` is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from `../envs/grid_envs/grid_world_v0.py`, the active inference agent class from `../agents/aif_agent.py`, and its correspoding phenotype from `../phts/` (using an utility function in `../tasks/utils.py`). Then, it defines the train function instantiating at every run both an agent and the corresponding environment who interact for a certain number of episodes (training loop). The train function is called in `../scripts/main.py`, if ‘task1’ is the task name passed through the command line (so every new task module should have a train function).
 
 
-<a id="org1969eab"></a>
+<a id="org7221bf3"></a>
 
 # How to Run an Experiment
 
 To train a vanilla active inference agent in a grid-like environment, you have to execute the main script from the terminal while passing to it the appropriate parameters.
 
-More explicitly, after having cloned the repo (see Section [1](#org93f457a)), you would execute the following instructions in the terminal (replace `name-of-repo` and `name-of-env` with the expression you pick to save the repo locally and the one for the conda environment you created, respectively):
+More explicitly, after having cloned the repo (see Section [1](#org3d8d98a)), you would execute the following instructions in the terminal (replace `name-of-repo` and `name-of-env` with the expression you pick to save the repo locally and the one for the conda environment you created, respectively):
 
 1.  Move into the local repo directory
     
@@ -306,15 +306,15 @@ What follows is a table summarizing the various arguments that could be used for
 </tbody>
 </table>
 
-For a more detailed tutorial on the kinds of experiments one could run, see the companion paper.
+For a more detailed tutorial on the kinds of experiments one could run, see the companion paper and (Da Costa et al. 2020).
 
 
-<a id="org54d0257"></a>
+<a id="org2258992"></a>
 
 # Resources
 
 
-<a id="org924c1b3"></a>
+<a id="orgcffb5e9"></a>
 
 ## Managing Python virtual enviroments
 
@@ -323,7 +323,9 @@ venv, conda, poetry
 (more info on managing Python environments can be found in the Conda&rsquo;s [User Guide](https://docs.conda.io/projects/conda/en/stable/user-guide/index.html))
 
 
-<a id="orgfb74377"></a>
+<a id="orgd88f0ba"></a>
 
 # References
+
+Da Costa, Lancelot, Thomas Parr, Noor Sajid, Sebastijan Veselic, Victorita Neacsu, and Karl Friston. 2020. “Active Inference on Discrete State-Spaces: A Synthesis.” Journal of Mathematical Psychology 99 (December): 102447. <10.1016/j.jmp.2020.102447>.
 
