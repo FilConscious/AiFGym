@@ -121,7 +121,7 @@ class ActInfAgent(BaifAgent):
             # Note: this is done to avoid importing all the submodules in phts with
             # 'from phts import *' at the top of the file
             sub_mod = self.env_name + "_phts"
-            mod_phts = importlib.import_module("active_inf.phts." + sub_mod)
+            mod_phts = importlib.import_module(".phts." + sub_mod, "aifgym")
             B_init = getattr(mod_phts, "B_init_" + self.env_name)
 
             self.B = np.zeros((self.num_actions, self.num_states, self.num_states))

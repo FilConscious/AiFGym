@@ -26,7 +26,10 @@ dependencies = [
 dynamic = ["version"]
 
 [tool.setuptools.packages.find]
-where = ["aifgym"]
+where = ["."]
 
 [tool.setuptools.dynamic]
-version = {attr = "scripts.__init__.VERSION"}
+version = {attr = "aifgym.__init__.VERSION"}
+
+[project.scripts]
+run-aifgym = "aifgym:main" # main refers to the function inside the package __init__.py

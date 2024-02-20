@@ -194,3 +194,26 @@ The solution is simply to create another folder called =AiFGym= inside =/./cde-A
 After some reflections, it seems all was due to a bad repo structure. To do successfully all the things above, you need to have a /project root directory/ which contains the =pyproject.toml=, the license, the =README.md= etc. as well as the main package you want to install/use, i.e., ~aifgym~. All the relevant code should go in there so it was a mistake to take out the =env= and the =scripts= folders in this case.
 
 Now I have to update all the dependencies and pointers to folders inside the various files...then try again the installation and running some experiments. Let's see if I got it right this time!
+
+** 2023-11-01: Still ModuleNotFound error when trying to run the module from any directory
+
+The code works if I call the module from inside the project root directory (in which the package is located), but not if I am in any other directory.
+
+A quick search online reveals that this might be due to the specification of appropriate *entry points* with ~setuptools~ in the =pyproject.toml=.
+
+Okay, configured the new entry points. Basically, I removed the folder =/scripts= and copied and pasted the ~main()~ function in the =__init__.py= file of the package. Now it should be possible to just type ~run-aifgym~ in the terminal, from any folder, to train the agent.
+
+In configuring this, I also had to change the location of the version attribute. This resulted in /another/ ~ModuleNotFound~ error. The mistake this time was to tell Python in the =pyproject.toml= to look for modules inside =aifgym=, but doing this makes Python blind about the fact that =aifgym= is a module itself during the building time (maybe that specification was responsible for other issue as well?).
+
+** 2024-02-20: Re-familiarizing with the repo
+
+Okay, trying to remember the last changes I applied. These relate to how to run the main scripts so I should experiment a bit and report results here. The instructions in the ~README.md~ should probably be updated as well.
+
+1. with the new modifications using  ~python -m scripts.main -task task1 etc.~ to run an experiment does not work anymore
+2. in fact I wrote last time that typing just ~run-aifgym~ should suffice, this is correct but now I get another ~ModuleNotFound~ error that requires investigation:
+
+   - the problem was that now to perform a relative import with ~importlib.import_module(".phts." + sub_mod)~ you need to add the name of the package, i.e., "aifgym" in this case, so the right command is ~importlib.import_module(".phts." + sub_mod, "aifgym")~
+
+
+
+3. for the visualizations I think the old method is still in place, I need to figure this out and maybe update it
