@@ -5,9 +5,13 @@
 #+STARTUP: overview indent
 #+OPTIONS: toc:2
 
-* Installation
 
-The repo allows you train an active inference agent in a discrete, grid-world, custom environment, created using Gymnasium (https://gymnasium.farama.org/), a regularly maintained fork of Open AI's Gym library (which is no longer maintained).
+* Installation
+:PROPERTIES:
+:ID:       8ccb5990-945e-4d5b-b282-62f57ba822e7
+:END:
+
+The code in this repo allows you to train an active inference agent in a discrete, grid-world, custom environment, created using Gymnasium (https://gymnasium.farama.org/).
 
 This guide assumes that the user has installed [[https://git-scm.com/downloads][Git]] and Python (through [[https://www.anaconda.com/download][Anaconda]] or similar distributions) into their system.
 
@@ -21,7 +25,7 @@ This guide assumes that the user has installed [[https://git-scm.com/downloads][
 
 3. Create Python virtual environment or conda environment with a recent version of Python, e.g.:
 
-   ~conda create --name aifgym-env python=3.10~
+   ~conda create --name aifgym-env python=3.12~
 
 4. Activate the environment:
 
@@ -30,26 +34,82 @@ This guide assumes that the user has installed [[https://git-scm.com/downloads][
 5. Install the package:
 
    ~pip install --editable .~
-          
+
+The latter step installs the package, together with other required libraries/packages, in editable mode. This means that it is possible to modify your working/local copy of the algorithm and used it immediately, without going through the whole process of building the package and installing it again.
+
 * Overview of the Repository
 
-The core script is =../scripts/main.py= which defines an argument parser and passes the arguments provided through the command line to the train function of a task (Python) module defined in =../active_inf/tasks/= to train an active inference agent; the task module (e.g., =../active_inf/tasks/task1.py=) is imported dynamically depending on the task name the user has provided through the command line (see [[How to Run an Experiment]]).
+#+BEGIN_SRC bash
+├── aifgym
+│   ├── agents
+│   │   ├── aif_agent.py
+│   │   ├── base_agents.py
+│   │   ├── __init__.py
+│   │   └── utils_actinf.py
+│   ├── envs
+│   │   ├── bforest_env.py
+│   │   ├── environment.py
+│   │   ├── grid_env.py
+│   │   ├── grid_envs
+│   │   │   ├── grid_world_v0.py
+│   │   │   └── __init__.py
+│   │   ├── images
+│   │   │   ├── acorn.jpg
+│   │   │   ├── ...
+│   │   ├── __init__.py
+│   │   ├── maze_env.py
+│   │   └── omaze_env.py
+│   ├── __init__.py
+│   ├── phts
+│   │   ├── GridWorldv0_phts.py
+│   │   ├── __init__.py
+│   │   └── omaze_phts.py
+│   ├── tasks
+│   │   ├── __init__.py
+│   │   ├── task1.py
+│   │   └── utils.py
+│   └── visuals
+│       ├── __init__.py
+│       └── utils_vis.py
+├── ...
+├── aifgym-refs.bib
+├── CHANGELOG.md
+├── docs
+│   ├── aif-gym-docs.org
+│   └── aif-gym-nb.org
+├── LICENSE
+├── pyproject.toml
+├── README.md
+├── results
+│   └── 20.02.2024_12.19.15_GridWorldv0r1e2prFstatesASkdlAFlBFlDF
+│       ├── aif_exp20.02.2024_12.19.15_.npy
+│       ├── ...
+│       └── tr_probs_state0_action0.jpg
+└── videos
+#+END_SRC
 
-Importantly, =../active_inf/= is the Python package (a folder with an =__init__.py= file) storing all the sub-packages and modules used to train an active inference agent. In addition to the task sub-package, it includes the following sub-packages:
+By following the installation instructions, you will have installed in your system the Python package =aifgrym/= (simply: a folder with an =__init__.py= file), which includes a series of sub-packages and modules that can be used to train an active inference agent. The main subpackages are:
 
-- =../agents/= with the module =aif_agent.py= specifying the active inference agent class
-- =../phts/= for defining the "phenotype" of an active inference agent in a certain environment, chiefly this involves specifying the desired observations/states of the agent (i.e., its priors) as well certain defining feature of the environment
-- =../visuals/= contains modules for visualizing/plotting data from an experiment
+- =./agents= with the module =aif_agent.py= defining the active inference agent class, and other modules of utility functions
+- =./envs= for defining (or downloading) different environments in which to train the agent
+- =./phts= for defining the "phenotype" of an active inference agent in a certain environment, i.e., its desired observations/states (aka priors)
+- =./tasks= with different task modules specifying particular tasks for training/testing
+- =./visuals= for the functions used to plot data from an experiment
 
-In the working directory, there is also the package =../envs/= for defining (or downloading) different environments in which to train the agent, e.g., =../envs/grid_envs= is a sub-package storing modules for grid-world environments.
+For example, =./tasks/task1.py= is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from =./envs/grid_envs/grid_world_v0.py=, the active inference agent class from =./agents/aif_agent.py=, and its correspoding phenotype from =./phts/= (using an utility function in =./tasks/utils.py=). Then, it defines the train function instantiating at every run both an agent and the corresponding environment, these interact for a certain number of episodes (training loop). The train function for task 1 is called by the main function in =./__init__py=, if ‘task1’ is the task name passed through the command line (so every new task module should have a train function).
 
-For example, =../active_inf/tasks/task1.py= is the Python module to train an active inference agent in a simple grid-world environment. The module imports the grid-world environment class from =../envs/grid_envs/grid_world_v0.py=, the active inference agent class from =../agents/aif_agent.py=, and its correspoding phenotype from =../phts/= (using an utility function in =../tasks/utils.py=). Then, it defines the train function instantiating at every run both an agent and the corresponding environment who interact for a certain number of episodes (training loop). The train function is called in =../scripts/main.py=, if ‘task1’ is the task name passed through the command line (so every new task module should have a train function).
+Note that the ~main()~ function used to run the simulations is included in the top level =__init__.py= file. In this way, we can define a console script entry point (see [[https://setuptools.pypa.io/en/latest/userguide/entry_point.html#entry-points-syntax][Setuptools: Entry Points]]). This amounts to the functionality whereby from the command line we can run a command (defined in the =pyproject.toml=) that calls a specific function of our package, i.e., the ~main()~ function in our case.
+
+This function defines an argument parser and passes the arguments provided through the command line to the train function of the invoked task module. The task module, e.g., =./tasks/task1.py=) is imported dynamically depending on the task name the user has provided through the command line (see [[How to Run an Experiment]]).
 
 * How to Run an Experiment
+:PROPERTIES:
+:ID:       700ed5ed-5fbe-4c72-aebb-4337decd55db
+:END:
 
 To train a vanilla active inference agent in a grid-like environment, you have to execute the main script from the terminal while passing to it the appropriate parameters.
 
-More explicitly, after having cloned the repo (see [[Installation]]), you would execute the following instructions in the terminal (replace ~name-of-repo~ and ~name-of-env~ with the expression you pick to save the repo locally and the one for the conda environment you created, respectively):
+More explicitly, after having cloned the repo (see Section [[Installation]]), you would execute the following instructions in the terminal (replace ~name-of-repo~ and ~name-of-env~ with the expressions you choose at installation):
 
 1. Move into the local repo directory
 
@@ -61,11 +121,13 @@ More explicitly, after having cloned the repo (see [[Installation]]), you would 
 
 3. Execute Python script for training
 
-   ~python -m scripts.main -task task1 -env GridWorldv0 -nr 1 -ne 2 -pt states -as kd~
+   ~run-aifgym -task task1 -env GridWorldv0 -nr 1 -ne 2 -pt states -as kd~
 
 4. Execute Python script for data visualization
 
-   ~python -m active_inf.visuals.visualiz -i 4 -v 8 -ti 0 -tv 8 -vl 3 -hl 3~
+   ~vis-aifgym -i 4 -v 8 -ti 0 -tv 8 -vl 3 -hl 3~
+
+The commands ~run-aifgym~ and ~vis-aifgym~ are the entry points defined in the =pyproject.toml=, they call respective ~main()~ functions defined in =aifgym/__init__.py= and =aifgym/visuals/__init__.py= to which are passed the command line arguments required.
 
 What follows is a table summarizing the various arguments that could be used for instruction line (3); it should give you an idea of the kinds of experiments that can be run at the moment (or that potentially could be run, after some modifications/addition to the code).
 
@@ -89,19 +151,23 @@ What follows is a table summarizing the various arguments that could be used for
 | ~--step_fe_pi~    | ~-fpi~    | Timestep for which to plot the free energy                                                            | ~-1~ (the last step, default) |
 | ~--x_ticks_estep~ | ~-xtes~   | Step for x-axis ticks (in plotting a variable as a function of episodes' number)                      | ~1~ (default)                 |
 | ~--x_ticks_tstep~ | ~-xtts~   | Step for x-axis ticks (in plotting a variable as a function of total number of timesteps)             | ~50~ (default)                |
-| ~--index_Si~      | ~-i~      | Index \(i\) for selecting a random variable \(S_{i}\)                                                    | ~0~ (default)                 |
-| ~--value_Si~      | ~-v~      | Index \(j\) for selecting a value of \(S_{i}\) (used to plot \(Q(S_{i}= s_{j}\vert \pi)\) at a certain episode step) | ~0~                           |
-| ~--index_tSi~     | ~-ti~     | Index \(i\) for selecting a random variable \(S_{i}\)                                                    | ~0~ (default)                 |
-| ~--value_tSi~     | ~-tv~     | Index \(j\) for selecting a value of \(S_{i}\) (used to plot \(Q(S_{i}= s_{j}\vert \pi)\) at /every/ time step)      | ~0~                           |
-| ~--state_A~       | ~-sa~     | Index \(i\) for selecting a \(Q(O_{i} = o_{j}\vert s_{})\) (a column of matrix \(\mathbf{A}\)) to plot             | ~0~ (default)                 |
-| ~--state_B~       | ~-sb~     | Index \(i\) for selecting a \(Q_{a}(S_{j}_{}\vert S_{i})\) (a column of matrix \(\mathbf{B}\)) to plot                | ~0~ (default)                 |
-| ~--action_B~      | ~-ab~     | Index \(a\) to pick the corresponding matrix \(\mathbf{B}\) to plot \(Q_{a}(S_{j}_{}\vert S_{i})\)                    | ~0~ (default)                 |
+| ~--index_Si~      | ~-i~      | Index $i$ for selecting a random variable \(S_{i}\)                                                      | ~0~ (default)                 |
+| ~--value_Si~      | ~-v~      | Index $j$ for selecting a value of $S_{i}$ (used to plot $Q(S_{i}= s_{j}\vert \pi)$ at a certain episode step)     | ~0~                           |
+| ~--index_tSi~     | ~-ti~     | Index $i$ for selecting a random variable $S_{i}$                                                        | ~0~ (default)                 |
+| ~--value_tSi~     | ~-tv~     | Index $j$ for selecting a value of $S_{i}$ (used to plot $Q(S_{i}= s_{j}\vert \pi)$ at /every/ time step)            | ~0~                           |
+| ~--state_A~       | ~-sa~     | Index $i$ for selecting a $Q(O_{i} = o_{j}\vert s_{})$ (a column of matrix $\mathbf{A}$) to plot                   | ~0~ (default)                 |
+| ~--state_B~       | ~-sb~     | Index $i$ for selecting a $Q_{a}(S_{j}_{}\vert S_{i})$ (a column of matrix $\mathbf{B}$) to plot                      | ~0~ (default)                 |
+| ~--action_B~      | ~-ab~     | Index $a$ to pick the corresponding matrix $\mathbf{B}$ to plot $Q_{a}(S_{j}_{}\vert S_{i})$                          | ~0~ (default)                 |
 | ~--v_len~         | ~-vl~     | Height of the environment                                                                             | ~3~                           |
 | ~--h_len~         | ~-hl~     | Width of the environment                                                                              | ~3~                           |
 
 
-For a more detailed tutorial on the kinds of experiments one could run, see the companion paper.
+For a more detailed tutorial on the kinds of experiments one could run, see the companion paper and [[cite:&DaCosta2020]].
+
 * Resources
+:PROPERTIES:
+:ID:       8b24570f-deb7-4638-b4a9-883ddf030094
+:END:
 
 ** Managing Python virtual enviroments
 
@@ -109,5 +175,6 @@ venv, conda, poetry
 
 (more info on managing Python environments can be found in the Conda's [[https://docs.conda.io/projects/conda/en/stable/user-guide/index.html][User Guide]])
 
-
 * References
+
+bibliography:../aifgym-refs.bib
