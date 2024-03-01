@@ -42,7 +42,7 @@ def main():
     parser.add_argument("--index_tSi", "-ti", type=int, default=0)
     parser.add_argument("--value_tSi", "-tv", type=int, required=True)
     # Argument for selecting and plotting a column of matrix A, storing the observation (or emission)
-    # probabilities when of a certain state
+    # probabilities when in a certain state
     # NOTE: this is only required/useful when the agents learns about state-observation mappings
     parser.add_argument("--state_A", "-sa", type=int, default=0)
     # Arguments for plotting the transitions probabilities for a specific state and action

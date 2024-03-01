@@ -619,6 +619,8 @@ def efe(
                 # Summing the terms to obtain (an approximation of) expected free energy at the
                 # tau time step, and adding the value to G to get the expected free energy over
                 # the future ("imagined") trajectory considered.
+                # N.B.: the update of G_pi should go here, inside the if statement, otherwise the for loop
+                # would consider values from previous time steps
                 G_pi_tau = Hs + slog_s_over_C - AsW_As
                 G_pi += G_pi_tau
 
@@ -634,6 +636,7 @@ def efe(
             # Making sure that tau is less than or equal to the total time steps in an episode;
             # we write (episode_steps-1) because we count from 0
             if tau <= (episode_steps - 1):
+                print(f"At time step tau: {tau}")
                 # Computing the terms of the expected free energy: ambiguity, risk, and novelty
                 # At the last state there is no action so when tau = episode_steps-1 the B-novelty term
                 # is dropped from the expected free energy.
@@ -684,12 +687,23 @@ def efe(
                         np.log(np.dot(A, Qs_pi_risk)) - np.log(C[:, tau]),
                     )
 
+                # Update the free energy components
+                # Ambiguity
+                tot_Hs += Hs
+                # Risk
+                tot_slog_s_over_C += slog_s_over_C
+                # A-Novelty (A-novelty stays at zero because there is no learning of A here)
+                tot_AsW_As += 0
+                # B-Novelty
+                tot_AsW_Bs += AsW_Bs
+
                 # Summing the terms to obtain (an approximation of) expected free energy at the tau
                 # time step, and adding the value to G to get the expected free energy over the
                 # future ("imagined") trajectory considered.
                 G_pi_tau = Hs + slog_s_over_C - AsW_Bs
-
-            G_pi += G_pi_tau
+                # N.B.: the update of G_pi should go here, inside the if statement, otherwise the for loop
+                # would consider values from previous time steps
+                G_pi += G_pi_tau
 
         # assert type(G_pi)==float, 'Free energy is not of type float; it is of type: ' + str(type(G_pi))
         return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs

@@ -117,6 +117,7 @@ def train(params, data_path, data_fn):
     # Looping over number of runs and episodes to realise the experiment.
     for run in range(num_runs):
         # Printing iteration (run) number
+        print("************************************")
         print(f"Starting iteration number {run}...")
         # For every run we set a corresponding random seed (needed for probabilistic functions
         # in the agent or environment class).
@@ -129,7 +130,9 @@ def train(params, data_path, data_fn):
         # Looping over the number of episodes
         for e in range(num_episodes):
             # Printing episode number
+            print("--------------------")
             print(f"Episode number {e}")
+            print("--------------------")
             # Resetting the environment and the agent
             start_state = env.reset()
             # env.render()
