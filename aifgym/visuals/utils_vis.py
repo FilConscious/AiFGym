@@ -15,7 +15,9 @@ import matplotlib.pyplot as plt
 # Functions for Plotting Saved Data
 
 
-def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_dir):
+def plot_pi_fe(
+    file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, select_policy, save_dir
+):
     """Plotting the free energy conditioned on a specific policy, F_pi, averaged over the runs.
 
     Inputs:
@@ -40,7 +42,17 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
     num_episodes = data["num_episodes"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    pi_fe = data["pi_free_energies"]
+    # print(data["pi_probabilities"].shape)
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        pi_fe = data["pi_free_energies"][selected_runs]
+    else:
+        pi_fe = data["pi_free_energies"]
 
     # Checking that the step_fe_pi is within an episode
     assert (
@@ -107,7 +119,7 @@ def plot_pi_fe(file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_di
 
 
 def plot_pi_fe_compare(
-    file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, save_dir
+    file_data_path, step_fe_pi, x_ticks_estep, x_ticks_tstep, select_policy, save_dir
 ):
     """This function is almost the same as plot_pi_fe() (the previous plotting function) with the only
     difference that all policy-conditioned free energies, F_pi (potentially averaged over runs) are plotted
@@ -135,7 +147,16 @@ def plot_pi_fe_compare(
     num_episodes = data["num_episodes"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    pi_fe = data["pi_free_energies"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        pi_fe = data["pi_free_energies"][selected_runs]
+    else:
+        pi_fe = data["pi_free_energies"]
 
     # Checking that the step_fe_pi is within an episode
     assert (
@@ -195,7 +216,9 @@ def plot_pi_fe_compare(
     plt.show()
 
 
-def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
+def plot_total_fe(
+    file_data_path, x_ticks_estep, x_ticks_tstep, select_policy, save_dir
+):
     """Plotting the total free energy averaged over the runs.
 
     Inputs:
@@ -217,7 +240,17 @@ def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
     num_runs = data["num_runs"]
     num_episodes = data["num_episodes"]
     num_steps = data["num_steps"]
-    total_fe = data["total_free_energies"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        total_fe = data["total_free_energies"][selected_runs]
+    else:
+        total_fe = data["total_free_energies"]
+
     # Computing the mean (average) and std of the total free energies over the runs
     avg_total_fe = np.mean(total_fe, axis=0).squeeze()
     std_total_fe = np.std(total_fe, axis=0).squeeze()
@@ -268,7 +301,7 @@ def plot_total_fe(file_data_path, x_ticks_estep, x_ticks_tstep, save_dir):
     plt.show()
 
 
-def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
+def plot_pi_prob(file_data_path, x_ticks_tstep, select_policy, save_dir):
     """Plotting the probability over policies, Q(pi), averaged over the runs at every time step during
     the experiment.
 
@@ -291,7 +324,17 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
     num_episodes = data["num_episodes"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    pi_prob = data["pi_probabilities"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        pi_prob = data["pi_probabilities"][selected_runs]
+    else:
+        pi_prob = data["pi_probabilities"]
+
     # Averaging the policies' probabilities over the runs
     avg_pi_prob = np.mean(pi_prob, axis=0).squeeze()
     # Making sure avg_pi_prob_ls has the right dimensions
@@ -327,7 +370,7 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, save_dir):
     plt.show()
 
 
-def plot_efe(file_data_path, save_dir):
+def plot_efe(file_data_path, select_policy, save_dir):
     """Plotting the expected free energy, EFE, for a given policy over all the steps averaged over the runs.
 
     Inputs:
@@ -346,7 +389,17 @@ def plot_efe(file_data_path, save_dir):
     num_episodes = data["num_episodes"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    efe = data["expected_free_energies"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        efe = data["expected_free_energies"][selected_runs]
+    else:
+        efe = data["expected_free_energies"]
+
     # Averaging the expected free energies over the runs
     avg_efe = np.mean(efe, axis=0).squeeze()
     # Making sure efe has the right dimensions
@@ -379,7 +432,7 @@ def plot_efe(file_data_path, save_dir):
     plt.show()
 
 
-def plot_efe_comps(file_data_path, save_dir):
+def plot_efe_comps(file_data_path, select_policy, save_dir):
     """Plotting the expected free energy components (ambiguity, risk and novelty) for a given policy over
     all the steps averaged over the runs.
 
@@ -399,11 +452,25 @@ def plot_efe_comps(file_data_path, save_dir):
     num_episodes = data["num_episodes"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    efe = data["expected_free_energies"]
-    efe_ambiguity = data["efe_ambiguity"]
-    efe_risk = data["efe_risk"]
-    efe_Anovelty = data["efe_Anovelty"]
-    efe_Bnovelty = data["efe_Bnovelty"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        efe = data["expected_free_energies"][selected_runs]
+        efe_ambiguity = data["efe_ambiguity"][selected_runs]
+        efe_risk = data["efe_risk"][selected_runs]
+        efe_Anovelty = data["efe_Anovelty"][selected_runs]
+        efe_Bnovelty = data["efe_Bnovelty"][selected_runs]
+    else:
+        efe = data["expected_free_energies"]
+        efe_ambiguity = data["efe_ambiguity"]
+        efe_risk = data["efe_risk"]
+        efe_Anovelty = data["efe_Anovelty"]
+        efe_Bnovelty = data["efe_Bnovelty"]
+
     # Averaging the expected free energies and their components over the runs
     avg_efe = np.mean(efe, axis=0).squeeze()
     avg_efe_ambiguity = np.mean(efe_ambiguity, axis=0).squeeze()
@@ -471,7 +538,9 @@ def plot_efe_comps(file_data_path, save_dir):
     plt.show()
 
 
-def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir):
+def plot_Qs_pi_prob(
+    file_data_path, x_ticks_estep, index_Si, value_Si, select_policy, save_dir
+):
     """Plotting policies' beliefs over states at a certain time step, i.e. Q(S_t = s|pi),
     over the episodes (averaged over the runs).
 
@@ -501,7 +570,17 @@ def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir)
     num_states = data["num_states"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    policy_state_prob = data["policy_state_prob"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        policy_state_prob = data["policy_state_prob"][selected_runs]
+    else:
+        policy_state_prob = data["policy_state_prob"]
+
     # Averaging the state probabilities conditioned on policies over the runs
     avg_prob = np.mean(policy_state_prob, axis=0).squeeze()
 
@@ -553,7 +632,9 @@ def plot_Qs_pi_prob(file_data_path, x_ticks_estep, index_Si, value_Si, save_dir)
     plt.show()
 
 
-def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_dir):
+def plot_Qt_pi_prob(
+    file_data_path, x_ticks_tstep, index_tSi, value_tSi, select_policy, save_dir
+):
     """Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi), averaged over
     the runs *and* as a function of the experiment steps.
 
@@ -584,8 +665,18 @@ def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_di
     num_states = data["num_states"]
     num_policies = data["num_policies"]
     num_steps = data["num_steps"]
-    last_tstep_prob = data["last_tstep_prob"]
-    # Averaging the state probabilities conditioned on policies over the runs and episodes
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        last_tstep_prob = data["last_tstep_prob"][selected_runs]
+    else:
+        last_tstep_prob = data["last_tstep_prob"]
+
+        # Averaging the state probabilities conditioned on policies over the runs and episodes
     avg_prob = np.mean(last_tstep_prob, axis=0).squeeze()
     # avg_prob = np.mean(avg_prob, axis=0).squeeze()
     # assert avg_prob.shape == (num_policies, num_states, num_steps)
@@ -638,7 +729,7 @@ def plot_Qt_pi_prob(file_data_path, x_ticks_tstep, index_tSi, value_tSi, save_di
         plt.show()
 
 
-def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
+def plot_so_mapping(file_data_path, x_ticks_estep, state_A, select_policy, save_dir):
     """Plotting state-observation mappings (emission probabilities), i.e., matrix A of size
     (num_states, num_states), averaged over the runs.
 
@@ -667,7 +758,17 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
     num_episodes = data["num_episodes"]
     num_steps = data["num_steps"]
     num_states = data["num_states"]
-    so_mappings = data["so_mappings"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        so_mappings = data["so_mappings"][selected_runs]
+    else:
+        so_mappings = data["so_mappings"]
+
     # Making sure state_A is one of the of the columns of matrix A (i.e. one of the state for which
     # we want to see the the state-observation mapping)
     assert state_A >= 0 and state_A <= num_states - 1, "Invalid state."
@@ -764,7 +865,9 @@ def plot_so_mapping(file_data_path, x_ticks_estep, state_A, save_dir):
     plt.show()
 
 
-def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir):
+def plot_transitions(
+    file_data_path, x_ticks_estep, state_B, action_B, select_policy, save_dir
+):
     """Plotting transition probabilities, i.e., matrices B (one for each available action) of size
     (num_states, num_states), averaged over the runs.
 
@@ -795,7 +898,17 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
     num_episodes = data["num_episodes"]
     num_steps = data["num_steps"]
     num_states = data["num_states"]
-    transitions_prob = data["transition_prob"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        transitions_prob = data["transition_prob"][selected_runs]
+    else:
+        transitions_prob = data["transition_prob"]
+
     # Computing the mean (avg) and std of the transition probabilities over the runs
     avg_transitions_prob = np.mean(transitions_prob, axis=0).squeeze()
     std_transitions_prob = np.std(transitions_prob, axis=0).squeeze()
@@ -902,7 +1015,7 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
         plt.show()
 
 
-def plot_Qs_pi_final(file_data_path, save_dir):
+def plot_Qs_pi_final(file_data_path, select_policy, save_dir):
     """Visualising the Q(S_i|pi) for each policy at the end of the experiment, where i is in
     [0,...,num_steps-1] and indicates the time step during an episode. Note that the the Q(S_i|pi)
     are categorical distributions telling you the state beliefs the agent has for each episode's time step.
@@ -923,7 +1036,17 @@ def plot_Qs_pi_final(file_data_path, save_dir):
     num_episodes = data["num_episodes"]
     num_steps = data["num_steps"]
     num_states = data["num_states"]
-    Qs_pi_prob = data["policy_state_prob"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        Qs_pi_prob = data["policy_state_prob"][selected_runs]
+    else:
+        Qs_pi_prob = data["policy_state_prob"]
+
     # Averaging the Q(S|pi) over the runs
     avg_Qspi = np.mean(Qs_pi_prob, axis=0).squeeze()
     # Selecting the probabilities for the last episode only
@@ -1014,7 +1137,7 @@ def plot_oa_sequence(file_data_path, num_episodes, num_steps):
     print(actions_sequence)
 
 
-def plot_state_visits(file_path, v_len, h_len, save_dir):
+def plot_state_visits(file_path, v_len, h_len, select_policy, save_dir):
     """Plotting the state visits heatmap showing the frequency with which the agent has visited the
     maze's tiles.
 
@@ -1050,7 +1173,17 @@ def plot_state_visits(file_path, v_len, h_len, save_dir):
 
     # Retrieving state visits data and computing average over runs, and over runs and episodes
     data = np.load(file_path, allow_pickle=True).item()
-    state_visits = data["state_visits"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        state_visits = data["state_visits"][selected_runs]
+    else:
+        state_visits = data["state_visits"]
+
     run_avg_sv = np.mean(state_visits, axis=0)
     tot_avg_sv = np.mean(run_avg_sv, axis=0)
 

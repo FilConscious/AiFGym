@@ -49,6 +49,8 @@ def main():
     # (i.e. a column of a B matrix) over the entire experiment
     parser.add_argument("--state_B", "-sb", type=int, default=0)
     parser.add_argument("--action_B", "-ab", type=int, default=0)
+    # Argument to select a subset of the runs to plot depending on the probability of a policy being > 0.5
+    parser.add_argument("--select_policy", "-selp", type=int, default=-1)
     # Arguments for the lengths of the environment to plot the state visits
     parser.add_argument("--v_len", "-vl", type=int, required=True)
     parser.add_argument("--h_len", "-hl", type=int, required=True)
@@ -98,6 +100,7 @@ def main():
         params["step_fe_pi"],
         params["x_ticks_estep"],
         params["x_ticks_tstep"],
+        params["select_policy"],
         result_dir,
     )
     # 1.b Plotting the policy-conditioned free energies (F_pi) in the same plot
@@ -106,22 +109,30 @@ def main():
         params["step_fe_pi"],
         params["x_ticks_estep"],
         params["x_ticks_tstep"],
+        params["select_policy"],
         result_dir,
     )
     # 2.a Plotting the total free energy, i.e. E_pi[F_pi]
-    plot_total_fe(file_dp, params["x_ticks_estep"], params["x_ticks_tstep"], result_dir)
+    plot_total_fe(
+        file_dp,
+        params["x_ticks_estep"],
+        params["x_ticks_tstep"],
+        params["select_policy"],
+        result_dir,
+    )
     # 2.b Plotting the expected free energy for each policy
-    plot_efe(file_dp, result_dir)
+    plot_efe(file_dp, params["select_policy"], result_dir)
     # 2.c Plotting the expected free energy components for each policy
-    plot_efe_comps(file_dp, result_dir)
+    plot_efe_comps(file_dp, params["select_policy"], result_dir)
     # 3.a Plotting the policies probabilities, i.e. Q(pi)
-    plot_pi_prob(file_dp, params["x_ticks_tstep"], result_dir)
+    plot_pi_prob(file_dp, params["x_ticks_tstep"], params["select_policy"], result_dir)
     # 3.b Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi)
     plot_Qs_pi_prob(
         file_dp,
         params["x_ticks_estep"],
         params["index_Si"],
         params["value_Si"],
+        params["select_policy"],
         result_dir,
     )
     # 3.c Plotting beliefs over states at certain time step for every policy, i.e. Q(s|pi), *as a
@@ -131,20 +142,30 @@ def main():
         params["x_ticks_tstep"],
         params["index_tSi"],
         params["value_tSi"],
+        params["select_policy"],
         result_dir,
     )
     # 4. Plotting related to matrices A, i.e., state-observation mappings
-    plot_so_mapping(file_dp, params["x_ticks_estep"], params["state_A"], result_dir)
+    plot_so_mapping(
+        file_dp,
+        params["x_ticks_estep"],
+        params["state_A"],
+        params["select_policy"],
+        result_dir,
+    )
     # 5. Plotting related to matrix B, i.e., transitions probabilities
     plot_transitions(
         file_dp,
         params["x_ticks_estep"],
         params["state_B"],
         params["action_B"],
+        params["select_policy"],
         result_dir,
     )
     # 6. Plotting other heatmaps
     # Plotting categorical distributions Q(S|pi) from the last episode (averaged over the runs)
-    plot_Qs_pi_final(file_dp, result_dir)
+    plot_Qs_pi_final(file_dp, params["select_policy"], result_dir)
     # Plotting state visits (averaged over the runs)
-    plot_state_visits(file_dp, params["v_len"], params["h_len"], result_dir)
+    plot_state_visits(
+        file_dp, params["v_len"], params["h_len"], params["select_policy"], result_dir
+    )
