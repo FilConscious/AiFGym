@@ -867,37 +867,39 @@ def plot_transitions(file_data_path, x_ticks_estep, state_B, action_B, save_dir)
     )
     plt.show()
 
-    # Heatmap of the transition probabilites from all states for action a at the end of the experiment
-    fig2, ax2 = plt.subplots()
-    im = ax2.imshow(transition_prob_action[-1, :, :].squeeze())
+    # Heatmap of the transition probabilites from all states for action all the actions at the end
+    # of the experiment; the actions range from 0 to 3 (included)
+    for a in range(0, 4):
+        fig2, ax2 = plt.subplots()
+        im = ax2.imshow(avg_transitions_prob[-1, a, :, :].squeeze())
 
-    ax2.set_yticks(np.arange(num_states))
-    ax2.set_yticklabels(np.arange(num_states))
-    ax2.set_xticks(np.arange(num_states))
-    ax2.set_xticklabels(np.arange(num_states))
+        ax2.set_yticks(np.arange(num_states))
+        ax2.set_yticklabels(np.arange(num_states))
+        ax2.set_xticks(np.arange(num_states))
+        ax2.set_xticklabels(np.arange(num_states))
 
-    # Loop over data dimensions and create text annotations.
-    # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond to y-x Cartesian coordinates
-    # for i in range(num_states):
-    #     for j in range(num_states):
-    #         text = ax2.text(j, i, f'{transition_prob_action[-1, i, j]:.3f}', ha="center", va="center", color="w", fontsize='medium')
+        # Loop over data dimensions and create text annotations.
+        # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond to y-x Cartesian coordinates
+        # for i in range(num_states):
+        #     for j in range(num_states):
+        #         text = ax2.text(j, i, f'{transition_prob_action[-1, i, j]:.3f}', ha="center", va="center", color="w", fontsize='medium')
 
-    # Create colorbar
-    cbar = ax2.figure.colorbar(im, ax=ax2)
-    cbar.ax.set_ylabel("Probability", rotation=-90, va="bottom")
+        # Create colorbar
+        cbar = ax2.figure.colorbar(im, ax=ax2)
+        cbar.ax.set_ylabel("Probability", rotation=-90, va="bottom")
 
-    ax2.set_xlabel("States")
-    ax2.set_ylabel("States", rotation=90)
-    ax2.set_title(f"Transition Matrix for Action {a}")
+        ax2.set_xlabel("States")
+        ax2.set_ylabel("States", rotation=90)
+        ax2.set_title(f"Transition Matrix for Action {a}")
 
-    # Save figure and show
-    plt.savefig(
-        save_dir + "/" + "transitions_probs.jpg",
-        format="jpg",
-        bbox_inches="tight",
-        pad_inches=0.1,
-    )
-    plt.show()
+        # Save figure and show
+        plt.savefig(
+            save_dir + "/" + f"transitions_probs_action_{a}.jpg",
+            format="jpg",
+            bbox_inches="tight",
+            pad_inches=0.1,
+        )
+        plt.show()
 
 
 def plot_Qs_pi_final(file_data_path, save_dir):
