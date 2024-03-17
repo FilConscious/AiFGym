@@ -142,7 +142,7 @@ What follows is a table summarizing the various arguments that could be used for
 | ~--learn_A~          | ~-lA~     | Whether state-observation learning is enabled          | ~-lA~ (the value ~True~ is stored) |
 | ~--learn_B~          | ~-lB~     | Whether state-transition learning is enabled           | ditto                              |
 | ~--learn_D~          | ~-lD~     | Whether initial state learning is enabled              | ditto                              |
-| ~--num_videos~       | ~-nvs~    | Number of recorded videos                              | ~10~                               |
+| ~--num_videos~       | ~-nvs~    | Number of recorded videos                              | ~0~ (default)                      |
 
 What follows is a table summarizing the various arguments that could be used for instruction line (4):
 
@@ -151,17 +151,19 @@ What follows is a table summarizing the various arguments that could be used for
 | ~--step_fe_pi~    | ~-fpi~    | Timestep for which to plot the free energy                                                      | ~-1~ (the last step, default) |
 | ~--x_ticks_estep~ | ~-xtes~   | Step for x-axis ticks (in plotting a variable as a function of episodes' number)                | ~1~ (default)                 |
 | ~--x_ticks_tstep~ | ~-xtts~   | Step for x-axis ticks (in plotting a variable as a function of total number of timesteps)       | ~50~ (default)                |
-| ~--index_Si~      | ~-i~      | Index @@latex:$i$@@ for selecting a random variable  @@latex:$S_{i}$@@                                      | ~0~ (default)                 |
+| ~--index_Si~      | ~-i~      | Index src_latex{$i$} for selecting a random variable  src_latex{$S_{i}$}                           | ~0~ (default)                 |
 | ~--value_Si~      | ~-v~      | Index $j$ for selecting a value of $S_{i}$ (used to plot $Q(S_{i}= s_{j}\vert \pi)$ at a certain episode step) | ~0~                           |
 | ~--index_tSi~     | ~-ti~     | Index $i$ for selecting a random variable $S_{i}$                                                  | ~0~ (default)                 |
 | ~--value_tSi~     | ~-tv~     | Index $j$ for selecting a value of $S_{i}$ (used to plot $Q(S_{i}= s_{j}\vert \pi)$ at /every/ time step)      | ~0~                           |
-| ~--state_A~       | ~-sa~     | Index $i$ for selecting a $Q(O_{i} = o_{j}\vert s)$ (a column of matrix $\mathbf{A}$) to plot             | ~0~ (default)                 |
+| ~--state_A~       | ~-sa~     | Index $i$ for selecting a $Q(O_{i} = o_{j}\vert s_{i})$ (a column of matrix $\mathbf{A}$) to plot            | ~0~ (default)                 |
 | ~--state_B~       | ~-sb~     | Index $i$ for selecting a $Q_{a}(S_{j}_{}\vert S_{i})$ (a column of matrix $\mathbf{B}$) to plot                | ~0~ (default)                 |
 | ~--action_B~      | ~-ab~     | Index $a$ to pick the corresponding matrix $\mathbf{B}$ to plot $Q_{a}(S_{j}_{}\vert S_{i})$                    | ~0~ (default)                 |
+| ~select_policy~   | ~-selp~   | Index $i$ to select a policy $\pi_{i}$ to plot the subset of runs in which $P(\pi_{i}) > 0.5$             | ~-1~ (default)                |
 | ~--v_len~         | ~-vl~     | Height of the environment                                                                       | ~3~                           |
 | ~--h_len~         | ~-hl~     | Width of the environment                                                                        | ~3~                           |
 
 
+ parser.add_argument("--select_policy", "-selp", type=int, default=-1)
 For a more detailed tutorial on the kinds of experiments one could run, see the companion paper and [[cite:&DaCosta2020]].
 
 * Resources

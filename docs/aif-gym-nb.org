@@ -221,3 +221,81 @@ Okay, trying to remember the last changes I applied. These relate to how to run 
    - got it, I had a ~main()~ function for the visualizations as well, so by analogy I should simply move that into the ~__init__.py~, yeah, but which one? I think it should be the top-level one
    - got it, it actually works by simply adding a pointer to a sub-level package. i.e., ~visuals~, and calling the function ~main()~ now moved into the init file inside ~visuals~
    - so I guess we can delete ~visualiz.py~ now
+
+** 2024-02-22: README and docs are up and running
+
+A few issues remain:
+
+1. need to add a few more details about resources, with various links to other relevant works
+2. probably need to add a few more details about the implemented features and the experiments that can be run
+3. need to sort out the math delimiters issue due to Github flavoured Markdown quirks
+
+** 2024-02-23: Bug in the Logging of EFE data when learning matrix B
+
+Found a potential bug in the scenario where matrix B is supposed to be learn. The bug has to do with the expected free energy components which appears to be all zero when the corresponding plotting functions loads the data.
+
+This is strange because the expected free energy is not zero during the experiment (need to double check this) so it might be a problem with the logging or loading of the data.
+
+** 2024-02-29: EFE data bug fixed
+
+For the case of matrix B learning, I forgot to include the instructions to store the values of the different free energy components.
+
+** 2024-03-01: Policy learning challenging when B matrix not available
+
+Finally, the day came to run the second series of experiments. Things did not turn out as expected as the results were rather disappointing. I seem to remember that I had encounter something similar in the past, probably when experimenting with learning the B matrix, but I found no record of it.
+
+The main issue is that no matter how many runs (agents) you simulate and average upon it appears that the active inference algorithm does not favour the optimal policy as there seems to be more agents going through the wrong sensorimotor trajectory using policy 0 (the one not leading to the goal state), instead of policy 1.
+
+In general, the plots reflect this state of affairs, indicating that these results are not a complete fluke. At convergence, after a substantial number of episodes (e.g., 250), policy 0 minimizes free-energy to a greater degree than policy 1, which is consistent with the fact that the former policy has a higher probability than the latter.
+
+The gap is not enormous, suggesting that overall the two trajectories might be perceived as similar or equal; this would indicate that the agent has not learned the consequences of its actions very well.
+
+A suggestion in this direction is offered by the two heat maps showing the probabilities \(Q(S_{i}|\pi_{0}\) and \(Q(S_{i}|\pi_{1})\) for all the states. They are pretty much the same, with the crucial feature that each seems to spread the probabilities among the states that each policy would visit. In other words, it is like the algorithm tends (on average) to store the same sensorimotor information---from both policies---in the representation of each policy, with the consequence that the probabilities have to be equally spread (more or less).
+
+Now, in writing this, I come to wonder if this particular and peculiar state of affairs is actually a by-product of the averaging: it might be that half of the agents manage to pick the right policy and the other half doesn't, resulting in this weird mesh of sensorimotor information. This might be related to the bad bootstrap flagged by [[cite:&Tschantz2020b]].
+
+However, if this is indeed an artifact from averaging, one might wonder: does it make sense to average? The reason I did it is because I remmeber reading this suggestion in [[cite:&Sutton2018]] and is normally done in RL.
+
+Another weird result can be seen in the plot of the free energy components, in one of the episode towards the end, the B-novelty for policy 1 skyrockets which leave one puzzled as to why then policy 1 is not preferred over policy 0. The problem is that this is likely an outlier that drastically skews the free energy component plot (again, this reports an average over the runs) and has no effect on the policies probabilities (it might be just a single agent).
+
+Actionable steps from here:
+
+1. check the transition matrices for each action to see if indeed there is widespread confusion on the most likely consequences of each action, this is what I would expect after looking at the previous plots (again, this might be an averaging artifact)
+   
+2. it could be interesting to add a data selection parameter to plot the data only for agents that manage to select the right policy and for those which don't at convergence, this would provide an indication of what the split might be like
+
+3. an interesting experiment at this point would be to change the vector of prior preferences of the agents, to include a preference over intermediate states, and run another batch of simulation, hoping to see that:
+
+   - with intermediate preferences the algorithm would be facilitated in converging to the right policy on average
+
+   - that is, the majority of runs (agents) would be able to pick the right policy and learn distinct sensorimotor consequences of their actions
+
+4. concurrently with (1) and (2) I would start writing down the salient findings in the corresponding section in the draft, roughly:
+
+   - report the average results and expose the weirdness, I wouldn't spend too much on this (indeed, recycle the observations that you wrote above) if all turns out to be an artifact of averaging
+
+   - I would raise the question about averaging, point to the bad bootstrap problem, and compare to standard RL
+
+   - I would report the results from (3) hoping to make the clear contribution that the badbootstrap problem can be ameliorated with preferences over intermediate states; in other words, no sparse reward, another comparison with RL might be useful here
+
+Observations from taking action on the above steps:
+
+1. checking the transition for each action:
+
+   - action 0 (“go up”): this is an action that no policy dictates and yet it seems it has been selected a few times so that the agent has learned correctly that from state 7 going up make you stay there, and the same for state 1, these are the only two states for which the probabilities have increased a bit but not to a point of near-certainty, reflecting correctly that the action has not been picked many times
+
+   - action 1 ("go right"): this is an action that both policies dictate in different states in the maze, the transition probabilities for those states show a correct increase, being in the interval 0.4-0.6
+
+   - action 2 (“go down”): again this is an action that both policies dictate in different states in the maze, the transition probabilities appear again to have increased appropriately (by a magnitude comparable to that of action 1), reflecting the fact that the average agent has learned the sensorimotor consequences of its actions on different paths
+
+   - action 3 (“go left”): this is an action that neither policy dictates, as expected the heatmap shows that no learning has occurred so the transition probabilities have remained low for all the states.
+
+   - Overall, the average active inference agent seems to have learned the correct consequences of its actions for both policies, this is evidence consistent with the fact that such an agent is actually a mesh-up of optimal and sub-optimal agents.
+
+2. added the functionality to plot a subset of the runs depending on which policy is assigned higher probability, a few observations:
+
+   - the plots now look much more consistent and confirm the speculations above
+
+   - there is still a weird result: the skyrocketing of the B-novelty at some point during the experiment, more investigation is required to understand what is going on there
+
+   - also, the false/wrong state beliefs for the sub-optimal policy are still present, I think this deserves further attention and an explanation in the paper, as briefly remarked above I think this is due to the way free energy minimization is achieved.

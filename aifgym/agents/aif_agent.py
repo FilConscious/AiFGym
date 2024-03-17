@@ -490,6 +490,7 @@ class ActInfAgent(BaifAgent):
                 self.efe_risk[pi, self.current_tstep] = tot_slog_s_over_C
                 self.efe_Anovelty[pi, self.current_tstep] = tot_AsW_As
                 self.efe_Bnovelty[pi, self.current_tstep] = tot_AsW_Bs
+                print(f"Policy {pi} - Step {self.current_tstep} - EFE: {G_pi}")
 
         # Normalising the negative expected free energies stored as column in self.Qpi to get
         # the posterior over policies Q(pi) to be used for action selection

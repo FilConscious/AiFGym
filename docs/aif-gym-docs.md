@@ -1,16 +1,16 @@
 
 # Table of Contents
 
-1.  [Installation](#org15c20be)
-2.  [Overview of the Repository](#orge94fc61)
-3.  [How to Run an Experiment](#org60e80f5)
-4.  [Resources](#orgecbea3c)
-    1.  [Managing Python virtual enviroments](#orgf9949a1)
-5.  [References](#org6587f8c)
+1.  [Installation](#org459b5d8)
+2.  [Overview of the Repository](#org81ae00b)
+3.  [How to Run an Experiment](#org723b099)
+4.  [Resources](#org24ddfd9)
+    1.  [Managing Python virtual enviroments](#org94f6f6f)
+5.  [References](#orgf69dd7e)
 
 
 
-<a id="org15c20be"></a>
+<a id="org459b5d8"></a>
 
 # Installation
 
@@ -41,7 +41,7 @@ This guide assumes that the user has installed [Git](https://git-scm.com/downloa
 The latter step installs the package, together with other required libraries/packages, in editable mode. This means that it is possible to modify your working/local copy of the algorithm and used it immediately, without going through the whole process of building the package and installing it again.
 
 
-<a id="orge94fc61"></a>
+<a id="org81ae00b"></a>
 
 # Overview of the Repository
 
@@ -104,16 +104,16 @@ For example, `./tasks/task1.py` is the Python module to train an active inferenc
 
 Note that the `main()` function used to run the simulations is included in the top level `__init__.py` file. In this way, we can define a console script entry point (see [Setuptools: Entry Points](https://setuptools.pypa.io/en/latest/userguide/entry_point.html#entry-points-syntax)). This amounts to the functionality whereby from the command line we can run a command (defined in the `pyproject.toml`) that calls a specific function of our package, i.e., the `main()` function in our case.
 
-This function defines an argument parser and passes the arguments provided through the command line to the train function of the invoked task module. The task module, e.g., `./tasks/task1.py`) is imported dynamically depending on the task name the user has provided through the command line (see [3](#org60e80f5)).
+This function defines an argument parser and passes the arguments provided through the command line to the train function of the invoked task module. The task module, e.g., `./tasks/task1.py`) is imported dynamically depending on the task name the user has provided through the command line (see [3](#org723b099)).
 
 
-<a id="org60e80f5"></a>
+<a id="org723b099"></a>
 
 # How to Run an Experiment
 
 To train a vanilla active inference agent in a grid-like environment, you have to execute the main script from the terminal while passing to it the appropriate parameters.
 
-More explicitly, after having cloned the repo (see Section [1](#org15c20be)), you would execute the following instructions in the terminal (replace `name-of-repo` and `name-of-env` with the expressions you choose at installation):
+More explicitly, after having cloned the repo (see Section [1](#org459b5d8)), you would execute the following instructions in the terminal (replace `name-of-repo` and `name-of-env` with the expressions you choose at installation):
 
 1.  Move into the local repo directory
     
@@ -289,7 +289,7 @@ What follows is a table summarizing the various arguments that could be used for
 <tr>
 <td class="org-left"><code>--index_Si</code></td>
 <td class="org-left"><code>-i</code></td>
-<td class="org-left">Index  for selecting a random variable  </td>
+<td class="org-left">Index src<sub>latex</sub>{\(i\)} for selecting a random variable  src<sub>latex</sub>{\(S_{i}\)}</td>
 <td class="org-left"><code>0</code> (default)</td>
 </tr>
 
@@ -362,12 +362,12 @@ What follows is a table summarizing the various arguments that could be used for
 For a more detailed tutorial on the kinds of experiments one could run, see the companion paper and (Da Costa et al. 2020).
 
 
-<a id="orgecbea3c"></a>
+<a id="org24ddfd9"></a>
 
 # Resources
 
 
-<a id="orgf9949a1"></a>
+<a id="org94f6f6f"></a>
 
 ## Managing Python virtual enviroments
 
@@ -376,7 +376,7 @@ venv, conda, poetry
 (more info on managing Python environments can be found in the Conda&rsquo;s [User Guide](https://docs.conda.io/projects/conda/en/stable/user-guide/index.html))
 
 
-<a id="org6587f8c"></a>
+<a id="orgf69dd7e"></a>
 
 # References
 
