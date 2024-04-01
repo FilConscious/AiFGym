@@ -132,5 +132,9 @@ conda_env/
 
 # Results folder
 results/
+
 # Video folder
 videos/
+
+# Emacs folders
+.auctex-auto/

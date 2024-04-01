@@ -72,6 +72,8 @@ def vfe(
     #  # Fourth term: sum of dot products from t=2 to T.
     #  - S_2T(Q(s_t|pi) @ log(B_t-1) @ Q(s_t-1|pi)).
 
+    print("Computing FE...")
+
     # Digamma function used to compute the expectations of matrices A and B if their respective
     # parameters are learned by the agent. Those expectations turn up in the computation of the
     # free energy (see below).
@@ -84,11 +86,12 @@ def vfe(
     # need to be transposed because we want the dot products between the categorical distribution,
     # which are stored as columns in the original matrices.
 
-    # IMPORTANT: here we are replacing zero probabilities with the value 0.000001 to avoid zeroes in logs.
-    # Qs_pi_first = np.where(Qs_pi[pi, :, :] == 0, 0.0001, Qs_pi[pi, :, :])
+    # IMPORTANT: here we are replacing zero probabilities with the value 0.0001 to avoid zeroes in logs.
+    # Qs_pi = np.where(Qs_pi == 0, 0.0001, Qs_pi)
     # print(Qs_pi[pi, :, :])
     st_log_st = np.sum(np.sum(Qs_pi[pi, :, :].T * np.log(Qs_pi[pi, :, :]).T, axis=1))
 
+    # st_log_st = np.sum(np.sum(Qs_pi_first.T * np.log(Qs_pi_first).T, axis=1))
     ####################################### Second term #######################################
     # The second term, indicated by ot_logA_st, is computed in a vectorized way in the same way
     # as the first term.
@@ -216,6 +219,7 @@ def grad_vfe(
     as columns, one for each Q(s_t|pi).
     """
 
+    print("Computing FE gradients...")
     # Initialising the gradient vectors for each Q(s_t|pi)
     grad_F_pi = np.zeros((num_states, steps))
 
@@ -489,6 +493,7 @@ def efe(
     - G_pi (float): the sum of pi's expected free energies, one for each of future time step considered.
     """
 
+    print("Computing EFE...")
     # Initialising the expected free energy variable and its components
     G_pi = 0
     # Ambiguity
@@ -543,8 +548,8 @@ def efe(
                     )
                     # Computing the B-novelty term
                     AsW_Bs = np.dot(
-                        np.matmul(A, Qs_pi[pi, :, tau]),
-                        np.matmul(W_B, Qs_pi[pi, :, tau]),
+                        np.matmul(A, Qs_pi[pi, :, tau + 1]),
+                        np.matmul(W_B, Qs_pi[pi, :, tau + 1]),
                     )
                 # Computing the Ambiguity term
                 Hs = np.dot(H, Qs_pi[pi, :, tau])
@@ -636,7 +641,7 @@ def efe(
             # Making sure that tau is less than or equal to the total time steps in an episode;
             # we write (episode_steps-1) because we count from 0
             if tau <= (episode_steps - 1):
-                print(f"At time step tau: {tau}")
+                print(f"Computing EFE for future step {tau}...")
                 # Computing the terms of the expected free energy: ambiguity, risk, and novelty
                 # At the last state there is no action so when tau = episode_steps-1 the B-novelty term
                 # is dropped from the expected free energy.
@@ -656,10 +661,25 @@ def efe(
                             - 1 / np.sum(B_params[action, :, :], axis=0)
                         )
                     )
+
+                    #### DEBUGGING ####
+                    # b = 1 / B_params[action, :, :]
+                    # b_zero = 1 / np.sum(B_params[action, :, :], axis=0)
+                    # print(f"First row of b: {b[0,:]}")
+                    # print(f"First row of b_zero: {b_zero[0]}")
+                    # print(f"The Q(s|pi): {Qs_pi[pi, :, tau]}")
+                    # print(
+                    #     f"The A @ Q(s|pi) matrix for B-novelty: {np.matmul(A, Qs_pi[pi, :, tau])}"
+                    # )
+                    # print(
+                    #     f"The W_B @ Q(s|pi) matrix for B-novelty: {np.matmul(W_B, Qs_pi[pi, :, tau])}"
+                    # )
+                    #### END ####
+
                     # Computing B-novelty term
                     AsW_Bs = np.dot(
-                        np.matmul(A, Qs_pi[pi, :, tau]),
-                        np.matmul(W_B, Qs_pi[pi, :, tau]),
+                        np.matmul(A, Qs_pi[pi, :, tau + 1]),
+                        np.matmul(W_B, Qs_pi[pi, :, tau + 1]),
                     )
 
                 # IMPORTANT: here we are replacing zero probabilities with the minimum value in C to
@@ -679,6 +699,13 @@ def efe(
                     slog_s_over_C = np.dot(
                         Qs_pi_risk, np.log(Qs_pi_risk) - np.log(C[:, tau])
                     )
+                    ### DEBUGGING ###
+                    # print(f"Q(s|pi), corrected: {Qs_pi_risk}")  # ; Preferences: {C}")
+                    # print(
+                    #     f"logQ(S|pi) - log C: {np.log(Qs_pi_risk) - np.log(C[:, tau])}"
+                    # )
+                    # print(f"Risk: {slog_s_over_C}")
+                    ### END ###
 
                 else:
                     # Computing risk based on preferred observations
@@ -874,8 +901,10 @@ def dirichlet_update(
         # Getting the approximate posterior
         Q_A_params = A_params  # Nothing is learned here
         # assert np.array_equal(Dirichlet_update_B[2,:,:], Dirichlet_update_B[3,:,:]) == False, 'Updates suspiciously identical!'
+        print(f"Old B params {B_params[2,:]}")
+        # print(f"Dirichlet update: {Dirichlet_update_B}")
         Q_B_params = B_params + Dirichlet_update_B
-
+        print(f"New B params {B_params[2,:]}")
         # Returning the approximate posterior for the learned parameters (Q_A_params is equal to
         # A_params because A is not learned)
         return Q_A_params, Q_B_params

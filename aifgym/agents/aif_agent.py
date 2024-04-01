@@ -275,6 +275,8 @@ class ActInfAgent(BaifAgent):
 
         """
 
+        print("---------------------")
+        print("--- 1. PERCEPTION ---")
         # Retrieving the softmax function needed to normalise the updated values of the Q(S_t|pi)
         # after performing gradient descent.
         sigma = special.softmax
@@ -351,6 +353,10 @@ class ActInfAgent(BaifAgent):
             ########### 2. Update the Q(S_t|pi) by setting gradient to zero ##############
 
             for i in range(1):
+
+                # IMPORTANT: here we are replacing zero probabilities with the value 0.0001
+                # to avoid zeroes in logs.
+                self.Qs_pi = np.where(self.Qs_pi == 0, 0.0001, self.Qs_pi)
                 # Computing the variational free energy for the current policy
                 # Note 1: if B parameters are learned then you need to pass in self.B_params and
                 # self.learning_B (the same applies for A)
@@ -385,19 +391,27 @@ class ActInfAgent(BaifAgent):
                 )
 
                 # Simultaneous beliefs updates
+                # Note: the update equation below is based on the computations of Da Costa, 2020, p. 9,
+                # by setting the gradient to zero one can solve for the parameters that minimize that gradient,
+                # here we are recovering those solutions *from* the gradient (by subtraction) before applying
+                # a softmax to make sure we get valid probabilities.
                 # IMPORTANT: when using a mean-field approx. in variational inference (like it is commonly
                 # done in vanilla active inference) the various factors, e.g., the Q(S_t|pi), are updated
                 # one at time by keeping all the others fixed. Here, we are instead using a simultaneous
                 # update of all the factors, possibly repeating this operation a few times. However,
                 # results seem OK even if the for loop iterates just for one step.
+                # print(f"BEFORE update, Qs_pi: {self.Qs_pi[pi,:,-1]}")
+                # print(f"Gradient for update: {grad_F_pi}")
                 self.Qs_pi[pi, :, :] = sigma(
                     (-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) - 1) - 1, axis=0
                 )
-
+                # print(f"AFTER update, Qs_pi: {self.Qs_pi[pi,:,-1]}")
+                # self.Qs_pi[pi, :, :] = sigma(-self.Qpi[pi, -1] * grad_F_pi, axis=0)
             ######### END ###########
 
             # Printing the free energy value for current policy at current time step
-            print(f"Policy {pi} - Step {self.current_tstep} - FE: {F_pi}")
+            print(f"Time Step: {self.current_tstep}")
+            print(f" FE_pi_{pi}: {F_pi}")
             # Storing the last computed free energy in self.free_energies
             self.free_energies[pi, self.current_tstep] = F_pi
             # Computing the policy-independent state probability at self.current_tstep and storing
@@ -441,6 +455,8 @@ class ActInfAgent(BaifAgent):
         - None.
 
         """
+        print("---------------------")
+        print("--- 2. PLANNING ---")
         # Retrieving the softmax function needed to normalise the values of vector Q(pi) after
         # updating them with the expected free energies.
         sigma = special.softmax
@@ -462,6 +478,14 @@ class ActInfAgent(BaifAgent):
             else:
                 # Note 1: if B parameters are learned then you need to pass in self.B_params
                 # and self.learning_B (the same applies for A)
+                ### DEBUGGING ###
+                # print(
+                #     f"The B params for action 2 (frist column): {self.B_params[2,:,0]}"
+                # )
+                # print(
+                #     f"The B params for action 2 (frist column): {self.B_params[2,:,3]}"
+                # )
+                ### END ###
                 G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs = efe(
                     self.num_states,
                     self.steps,
@@ -490,11 +514,31 @@ class ActInfAgent(BaifAgent):
                 self.efe_risk[pi, self.current_tstep] = tot_slog_s_over_C
                 self.efe_Anovelty[pi, self.current_tstep] = tot_AsW_As
                 self.efe_Bnovelty[pi, self.current_tstep] = tot_AsW_Bs
-                print(f"Policy {pi} - Step {self.current_tstep} - EFE: {G_pi}")
+                print(f"--- Summary of planning at time step {self.current_tstep} ---")
+                print(f"FE_{pi}: {F_pi}")
+                print(f"EFE_{pi}: {G_pi}")
+                print(f"Risk_{pi}: {tot_slog_s_over_C}")
+                print(f"Ambiguity {pi}: {tot_Hs}")
+                print(f"A-novelty {pi}: {tot_AsW_As}")
+                print(f"B-novelty {pi}: {tot_AsW_Bs}")
 
         # Normalising the negative expected free energies stored as column in self.Qpi to get
         # the posterior over policies Q(pi) to be used for action selection
+        print(f"Computing posterior over policy Q(pi)...")
         self.Qpi[:, self.current_tstep] = sigma(-self.Qpi[:, self.current_tstep])
+        print(f"Before adding noise - Q(pi): {self.Qpi}")
+        # Replacing zeroes with 0.0001, to avoid the creation of nan values and multiplying by 5 to make sure
+        # the concentration of probabilities is preserved when reapplying the softmax
+        self.Qpi[:, self.current_tstep] = np.where(
+            self.Qpi[:, self.current_tstep] == 1, 5, self.Qpi[:, self.current_tstep]
+        )
+        self.Qpi[:, self.current_tstep] = np.where(
+            self.Qpi[:, self.current_tstep] == 0,
+            0.0001,
+            self.Qpi[:, self.current_tstep],
+        )
+        self.Qpi[:, self.current_tstep] = sigma(self.Qpi[:, self.current_tstep])
+        print(f"After adding noise - Q(pi): {self.Qpi}")
         # Computing the policy-independent state probability at self.current_tstep and storing it in self.Qs
         self.Qs[:, self.current_tstep] += (
             self.Qs_pi[pi, :, self.current_tstep] * self.Qpi[pi, self.current_tstep]
@@ -645,9 +689,12 @@ class ActInfAgent(BaifAgent):
             - None.
         """
 
+        print("---------------------")
+        print("--- 4. LEARNING ---")
         # Getting the updated parameters for matrices A and B using dirichlet_update().
         # Note 1: if A or B parameters are *not* learned the update method simply return self.A_params or
         # self.B_params
+        print("Updating Dirichlet parameters...")
         self.A_params, self.B_params = dirichlet_update(
             self.num_states,
             self.num_actions,
@@ -671,6 +718,7 @@ class ActInfAgent(BaifAgent):
         # below (they do not change from their initialised form).
         if self.learning_A == True and self.learning_B == True:
 
+            print("Updated parameters for matrices A and Bs.")
             # After learning A's parameters, for every state draw one sample from the Dirichlet
             # distribution using the corresponding column of parameters.
             for s in range(self.num_states):
@@ -685,6 +733,7 @@ class ActInfAgent(BaifAgent):
 
         elif self.learning_A == True and self.learning_B == False:
 
+            print("Updated parameters for matrix A (no Bs learning).")
             # After learning A's parameters, for every state draw one sample from the Dirichlet
             # distribution using the corresponding column of parameters.
             for s in range(self.num_states):
@@ -692,6 +741,7 @@ class ActInfAgent(BaifAgent):
 
         elif self.learning_A == False and self.learning_B == True:
 
+            print("Updated parameters for matrices Bs (no A learning).")
             # After learning B's parameters, sample from them to update the B matrices, i.e. for every
             # action and state draw one sample from the Dirichlet distribution using the corresponding
             # column of parameters.
@@ -701,7 +751,7 @@ class ActInfAgent(BaifAgent):
 
         elif self.learning_A == False and self.learning_B == False:
 
-            pass
+            print("No update (matrices A and Bs not subject to learning).")
 
     def step(self, new_obs):
         """This method brings together all computational processes defined above, forming the
@@ -739,6 +789,8 @@ class ActInfAgent(BaifAgent):
 
             self.perception()
             self.planning()
+            print("---------------------")
+            print("--- 3. ACTING ---")
             self.current_action = eval(self.select_action)
             # Computing the total free energy and store it in self.total_free_energies
             # (as a reference for the agent performance)

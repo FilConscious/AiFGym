@@ -126,6 +126,9 @@ def main():
     plot_efe_comps(file_dp, params["select_policy"], result_dir)
     # 3.a Plotting the policies probabilities, i.e. Q(pi)
     plot_pi_prob(file_dp, params["x_ticks_tstep"], params["select_policy"], result_dir)
+    plot_pi_prob_last(
+        file_dp, params["x_ticks_tstep"], params["select_policy"], result_dir
+    )
     # 3.b Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi)
     plot_Qs_pi_prob(
         file_dp,
