@@ -504,6 +504,8 @@ def efe(
     tot_AsW_As = 0
     # B-Novelty
     tot_AsW_Bs = 0
+    # B-Novelty list by state
+    sq_AsW_Bs = np.zeros(episode_steps)
 
     # Computing matrix H for the ambiguity term of the expected free energy.
     # H = -diag[E[A]log(E[A])]
@@ -577,7 +579,7 @@ def efe(
                 G_pi_tau = Hs + slog_s_over_C - AsW_Bs - AsW_As
                 G_pi += G_pi_tau
 
-        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs, sq_AsW_Bs
 
     elif learning_A == True and learning_B == False:
         # A is learned but not B.
@@ -630,13 +632,14 @@ def efe(
                 G_pi += G_pi_tau
 
         # assert type(G_pi)==float, 'Free energy is not of type float; it is of type: ' + str(type(G_pi))
-        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs, sq_AsW_Bs
 
     elif learning_A == False and learning_B == True:
         # B is learned but not A.
         # Multi-step EFE: computing expected free energy for each timestep up until the last.
         for step in range(1, future_steps + 1):
             # Future step for which to calculate the expected free energy
+            print(f"Current time step {current_tstep}")
             tau = current_tstep + step
             # Making sure that tau is less than or equal to the total time steps in an episode;
             # we write (episode_steps-1) because we count from 0
@@ -681,6 +684,19 @@ def efe(
                         np.matmul(A, Qs_pi[pi, :, tau + 1]),
                         np.matmul(W_B, Qs_pi[pi, :, tau + 1]),
                     )
+                    if current_tstep == 0:
+                        print(f"EFE at future time step {tau}: {AsW_Bs}")
+                        sq_AsW_Bs[tau] = AsW_Bs
+
+                        if tau == 2:
+                            print(f"Action: {action}")
+                            b = 1 / B_params[action, :, :]
+                            b_zero = 1 / np.sum(B_params[action, :, :], axis=0)
+                            print(f"First/last row of b: {b[(0,-1),:]}")
+                            print(
+                                f"First/last row of b_zero: {b_zero[0]}, {b_zero[-1]}"
+                            )
+                            print(f"The Q(s|pi) at {tau+1}: {Qs_pi[pi, :, tau+1]}")
 
                 # IMPORTANT: here we are replacing zero probabilities with the minimum value in C to
                 # avoid zeroes in logs. Note that this keeps the meaning of the KL divergence
@@ -733,7 +749,7 @@ def efe(
                 G_pi += G_pi_tau
 
         # assert type(G_pi)==float, 'Free energy is not of type float; it is of type: ' + str(type(G_pi))
-        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs, sq_AsW_Bs
 
     else:
         # Neither A nor B is learned
@@ -767,7 +783,7 @@ def efe(
                 G_pi_tau = Hs + slog_s_over_C
                 G_pi += G_pi_tau
 
-        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs
+        return G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs, sq_AsW_Bs
 
 
 def dirichlet_update(

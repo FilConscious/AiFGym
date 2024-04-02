@@ -90,6 +90,7 @@ def train(params, data_path, data_fn):
     efe_Anovelty = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
     # B-novelty term of policy dependent expected free energies at each step during every episode
     efe_Bnovelty = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
+    efe_Bnovelty_t = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
     # Observations collected by the agent at each step during an episode
     observations = np.zeros((num_runs, num_episodes, num_states, num_max_steps))
     # Policy independent probabilistic beliefs about environmental states
@@ -193,6 +194,7 @@ def train(params, data_path, data_fn):
             efe_risk[run, e, :, :] = agent.efe_risk
             efe_Anovelty[run, e, :, :] = agent.efe_Anovelty
             efe_Bnovelty[run, e, :, :] = agent.efe_Bnovelty
+            efe_Bnovelty_t[run, e, :, :] = agent.efe_Bnovelty_t
             observations[run, e, :, :] = agent.current_obs
             states_beliefs[run, e, :] = agent.states_beliefs
             actual_action_sequence[run, e, :] = agent.actual_action_sequence
@@ -230,6 +232,7 @@ def train(params, data_path, data_fn):
     log_data["efe_risk"] = efe_risk
     log_data["efe_Anovelty"] = efe_Anovelty
     log_data["efe_Bnovelty"] = efe_Bnovelty
+    log_data["efe_Bnovelty_t"] = efe_Bnovelty_t
     log_data["observations"] = observations
     log_data["states_beliefs"] = states_beliefs
     log_data["actual_action_sequence"] = actual_action_sequence

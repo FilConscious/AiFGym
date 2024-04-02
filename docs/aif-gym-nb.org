@@ -299,3 +299,97 @@ Observations from taking action on the above steps:
    - there is still a weird result: the skyrocketing of the B-novelty at some point during the experiment, more investigation is required to understand what is going on there
 
    - also, the false/wrong state beliefs for the sub-optimal policy are still present, I think this deserves further attention and an explanation in the paper, as briefly remarked above I think this is due to the way free energy minimization is achieved.
+
+** 2024-03-19: Policy learning without B matrices
+
+The issue was that there are optimal and suboptimal agents so when you look at the average results of all the runs you get the impression that on average active inference agents do not find the optimal policy, they are maladaptive.
+
+I added some code to separate good and bad runs and get better visualizations of the learning behaviour for both kinds of agents. I was also reminded of the bad-bootstrap problem, as potential explanation for these failures of active inference, but after re-looking at the paper I realized that AT meant something else.
+
+After some reflections, and staring at the formulas for free energy minimization for a while, I realized that the problem might be related to the quantity being used in the current implementation. This was taken from the tutorial paper by Da Costa and does not have the policy probability as a weighting term of the free energy expression. This might explain why for both agents, the state predictions for both policy are nearly identical: the observations are used to update the policy-conditioned beliefs regardless of how probable the policy itself is.
+
+I need to look at the code again and implement the correct objective, and hope that something changes.
+
+** 2024-03-20: No changes
+
+Things seem harder than what I thought. Taking into consideration the probabilities over policies in the objective does not seem to work: 1) it does not solve what I thought it could solve, 2) it makes things worse because now the agent does not seem to be learning as well as before.
+
+I decided to start writing the section of the draft regardless, with what I have so far. Unfortunately, I stumbled onto another issue. When I plot the runs selectively, depending on final policy probabilities, there is a weird result in the EFE plot: basically the risk is high for the policy that has the highest probability, which does not makes sense.
+
+Further investigations revealed that the EFE computation is correct at the second-last step before reaching the final state, but it is not before that. It looks as if those computations accumulare more errors for the correct policy than the wrong one.
+
+** 2024-03-21: Tracked down the reason for weird EFE computations and other things
+
+After hours spent examining the printed info in the terminal during various simulations, I was able to pinpoint the exact reasons for why the weird behaviours described earlier are happening.
+
+The weird results:
+
+1. the agent gets stuck into performing either \(\pi_{0}\) or \(\pi_{1}\), with no ability to switch policy perhaps thanks to the risk or exploratory bonuses in the expected free energy
+2. moreover, while the agent can learn the state transitions for the chosen policy correctly, the expected free energy reveals something unexpected: the risk turns out to be higher for the chosen policy!
+3. that means, say, that if the agent has followed \(\pi_{0}\) its risk is higher, similar for \(\pi_{1}\) (without any regard for whether the policy leads to the goal state or not)
+4. two observations are pressing at this point:
+
+   1. why is the risk behaving in such a way?
+   2. why, despite this high risk, is the agent unable to switch to the other policy?
+
+5. the answer to these questions hinges in part upon the vector of state preferences used in the computation of the risk:
+
+   - the vector used attributes equal probability to all the state values except for the last time step where the agent wants to be at the goal state
+
+   - in general, this creates a problem the moment the agent pursues a policy and gathers evidence about the state probabilities along a certain sensorimotor path
+
+   - this has to do with the KL divergence of the risk: a more concentrated \(Q(S|\pi_{i}))\) will be further from the vector of preferences \(C\) than a less concentrated \(Q(S|\pi_{j})\), so the risk ends up being higher for the sensorimotor path the agent is more certain about, again regardless of the final/desired goal state
+
+   - as to why the agent does not switch policy, it has to do with the free energy value of the policy not taken: despite the lower risk, hence lower expected free energy, its free energy is much higher than that of the pursued policy, preventing a re-weighting of the respective policy probabilities
+
+   - it is also worth noting that, despite appearing correct, as things stand the novelty bonuses are basically useless, they are not sufficient for triggering the policy switch
+
+6. lastly, there is the issue of why the \(Q(S|\pi))\) end up being the same for both policies at the end of the experiment:
+
+   - I discovered that /during/ the experiment they are correct, reflecting total uncertainty for the policy not being pursued
+
+   - however, the last update changes things by assigning the wrong probabilities to the policy not being pursued, it is not clear why this is happening, if it is either a bug or an influence of the fact that the agent has collected a full trajectory of observations, a bit more investigation should go into this
+
+** 2024-03-28: Update on the issue of mistaken \(Q(S|\pi))\)
+
+Point (6) of previous log is incorrect:
+
+- it is not the case that during the experiment the \(Q(S|\pi))\) for the policy not being pursued are correct
+- I was looking at the last state, i.e., \(Q(S_{T}|\pi))\), and noticed that during the experiment the probability reflected total uncertainty but peaked incorrectly at the last step
+- this happens because effectively at that step the agent receives that observation
+- I think the same happens for all the other states
+
+- so what happens is much more nuanced (I'm pretty sure now, 99% of confidence):
+
+  - for the policy being pursued the \(Q(S|\pi))\) are correct throughout the experiment
+  - for the other policy the \(Q(S_{i}|\pi))\) are uncertain up to the point the agent receives the observation for state \(i\)
+
+** 2024-03-29: Update on explosion of B-novelty for pursued policy
+
+After a full day of investigation, I think I have resolved the last apparent incongruity in the simulation with \(\mathbf{B}\)-matrix learning. The strange result was that for the policy being pursued at some point in the experiment (at about episode 141) the \(\mathbf{B}\)-novelty would explode. I inspected extensively info being printed in the terminal related to the computation of the novelty term and realized that, indeed, there was an explosion of the wrong values.
+
+I had to go back to [[cite:&DaCosta2020]] and double-check the analytical expression for the computation of the novelty term. Unfortunately, one has to derive it from that for the \(\mathbf{A}\) matrix because the paper does not do that, and to the best of my knowledge no other active inference paper consider it.
+
+I used the same expression but after some pondering I realized that, while there might be a justification for the way the KL divergence is decomposed (but it is far from obvious and I could provide my personal contribution here), the expression for novelty needs to consider the distribution over the /next/ state and not the current one.
+
+This should be corrected in the paper as well. I wrote and use:
+
+\begin{equation}
+\mathbb{E}_{P(O_{\tau}|S_{\tau}) Q(S_{\tau}|\pi_{i})} \Bigl[\mathcal{D}_{KL} \bigl[Q(\mathbf{B}|o_{\tau}, s_{\tau}^{j})|Q(\mathbf{B})\bigr]\Bigr]
+\end{equation}
+
+But it should be:
+
+\begin{equation}
+\mathbb{E}_{P(O_{\tau+1}|S_{\tau+1}) Q(S_{\tau+1}|\pi_{i})} \Bigl[\mathcal{D}_{KL} \bigl[Q(\mathbf{B}|o_{\tau+1}, s_{\tau+1}^{j})|Q(\mathbf{B})\bigr]\Bigr]
+\end{equation}
+
+** 2024-03-31: Another update on explosion of B-novelty and related incongruities
+
+After fixing the B-novelty term, the worry was that all the behaviour related to policy fixation in the suboptimal agents would disappear. To my surprise, I discovered that the results were confirmed, so my lengthy explanation was not in vain.
+
+However, I did not double check the results with the optimal agents. Today, I discovered that the B-novelty sky-rockets again for these agents after around 140 episodes, but not as much before. I've ran more simulations for more episodes (250 first) and I've discovered that the suboptimal agents disappear, all agents can find the optimal policy at some point. This happens after the B-novelty for policy 1 takes off, pushing the agent to go down the other path in the maze. Now, the risk term seems also to be OK, indicating that my explanation does not apply any more, possibly.
+
+To make sure that the B-novelty does not explode as before I need to run the agents for longer, e.g., 500 episodes. After fixing issues related to divide-by-zero errors in logs (this happens because of the concentration of probabilities).
+
+** 2024-04-01: M

@@ -203,6 +203,7 @@ class ActInfAgent(BaifAgent):
         self.efe_risk = np.zeros((self.policies.shape[0], self.steps))
         self.efe_Anovelty = np.zeros((self.policies.shape[0], self.steps))
         self.efe_Bnovelty = np.zeros((self.policies.shape[0], self.steps))
+        self.efe_Bnovelty_t = np.zeros((self.policies.shape[0], self.steps))
         self.total_free_energies = np.zeros((self.steps))
 
         # Where the agent believes it is at each time step
@@ -486,22 +487,25 @@ class ActInfAgent(BaifAgent):
                 #     f"The B params for action 2 (frist column): {self.B_params[2,:,3]}"
                 # )
                 ### END ###
-                G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs = efe(
-                    self.num_states,
-                    self.steps,
-                    self.current_tstep,
-                    self.efe_tsteps,
-                    pi,
-                    pi_actions,
-                    self.A,
-                    self.C,
-                    self.Qs_pi,
-                    self.pref_type,
-                    self.A_params,
-                    self.B_params,
-                    self.learning_A,
-                    self.learning_B,
+                G_pi, tot_Hs, tot_slog_s_over_C, tot_AsW_As, tot_AsW_Bs, sq_AsW_Bs = (
+                    efe(
+                        self.num_states,
+                        self.steps,
+                        self.current_tstep,
+                        self.efe_tsteps,
+                        pi,
+                        pi_actions,
+                        self.A,
+                        self.C,
+                        self.Qs_pi,
+                        self.pref_type,
+                        self.A_params,
+                        self.B_params,
+                        self.learning_A,
+                        self.learning_B,
+                    )
                 )
+
                 # Storing the expected free energy and the free energy for the corresponding policy
                 # as the corresponding entry in self.Qpi, that will be normalised below using a
                 # softmax to get update probability over the policies (e.g. sigma(-F_pi-G_pi))
@@ -521,6 +525,15 @@ class ActInfAgent(BaifAgent):
                 print(f"Ambiguity {pi}: {tot_Hs}")
                 print(f"A-novelty {pi}: {tot_AsW_As}")
                 print(f"B-novelty {pi}: {tot_AsW_Bs}")
+
+                if self.current_tstep == 0:
+                    print(f"B-novelty sequence at t ZERO: {sq_AsW_Bs}")
+                    self.efe_Bnovelty_t[pi] += sq_AsW_Bs
+                    print(
+                        f"B-novelty sequence by policy (stored): {self.efe_Bnovelty_t}"
+                    )
+                    if sq_AsW_Bs[2] > 2200:
+                        raise Exception("B-novelty too high")
 
         # Normalising the negative expected free energies stored as column in self.Qpi to get
         # the posterior over policies Q(pi) to be used for action selection
@@ -855,6 +868,8 @@ class ActInfAgent(BaifAgent):
         self.agent_obs = np.zeros((self.num_states, self.steps))
         # Setting self.Qs to a zero array before starting a new episode
         self.Qs = np.zeros((self.num_states, self.steps))
+        # Resetting sequence of B-novelty values at t = 0
+        self.efe_Bnovelty_t = np.zeros((self.policies.shape[0], self.steps))
         # Initializing self.Qpi so that the prior over policies is equal to the last probability distribution
         # computed.
         # Note 1: this is done at all episodes except for the very first. To single out the first episode

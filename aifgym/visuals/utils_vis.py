@@ -404,7 +404,7 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, select_policy, save_dir):
 
 
 def plot_pi_prob_last(file_data_path, x_ticks_tstep, select_policy, save_dir):
-    """Plotting the probability over policies, Q(pi), averaged over the runs at the last time step of each
+    """Plotting the probability over policies, Q(pi), averaged over the runs at the first time step of each
     episode during the experiment.
 
     Inputs:
@@ -437,9 +437,9 @@ def plot_pi_prob_last(file_data_path, x_ticks_tstep, select_policy, save_dir):
     else:
         pi_prob = data["pi_probabilities"]
 
-    # Averaging the policies' probabilities over the runs for last step of each episode only
-    avg_pi_prob = np.mean(pi_prob[:, :, :, -1], axis=0).squeeze()
-    std_pi_prob = np.std(pi_prob[:, :, :, -1], axis=0).squeeze()
+    # Averaging the policies' probabilities over the runs for first step of each episode only
+    avg_pi_prob = np.mean(pi_prob[:, :, :, 0], axis=0).squeeze()
+    std_pi_prob = np.std(pi_prob[:, :, :, 0], axis=0).squeeze()
     # Making sure avg_pi_prob_ls has the right dimensions
     assert avg_pi_prob.shape == (num_episodes, num_policies), "Wrong dimenions!"
     # assert np.all(np.sum(avg_pi_prob_ls, axis=1)) == True, 'Probabilities do not sum to one!'
@@ -669,11 +669,111 @@ def plot_efe_comps(file_data_path, select_policy, save_dir):
 
     plt.xlabel("Step")
     plt.ylabel("Value", rotation=90)
-    plt.legend(loc="upper right")
+    plt.legend(loc="upper left")
     plt.title("Expected Free Energy Components at the First Step\n")
     # Save figure and show
     plt.savefig(
         save_dir + "/" + "efe_comps.jpg",
+        format="jpg",
+        bbox_inches="tight",
+        pad_inches=0.1,
+    )
+    plt.show()
+
+
+def plot_efe_Bcomps(file_data_path, select_policy, save_dir):
+    """Plotting the expected free energy B-novelty component for a given policy at the first episode step
+    averaged over the runs.
+
+    Inputs:
+
+    - file_data_path (string): file path where the total free energy data was stored (i.e. where log_data
+      was saved)
+    - save_dir (string): directory where to save the images.
+
+    Outputs:
+
+    - plot showing evolution of the expected free energy.
+    """
+
+    # Retrieving the data dictionary and extracting the content of required keys, e.g. 'total_free_energies'
+    data = np.load(file_data_path, allow_pickle=True).item()
+    num_runs = data["num_runs"]
+    num_episodes = data["num_episodes"]
+    num_policies = data["num_policies"]
+    num_steps = data["num_steps"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        num_runs = len(selected_runs)
+        efe_Bnovelty_t = data["efe_Bnovelty_t"][selected_runs]
+    else:
+        efe_Bnovelty_t = data["efe_Bnovelty_t"]
+
+    # Averaging the expected free energies and their components over the runs
+    avg_efe_Bnovelty_t = np.mean(efe_Bnovelty_t, axis=0).squeeze()
+    std_efe_Bnovelty_t = np.std(efe_Bnovelty_t, axis=0).squeeze()
+    # Making sure efe has the right dimensions
+    assert avg_efe_Bnovelty_t.shape == (
+        num_episodes,
+        num_policies,
+        num_steps,
+    ), "Wrong dimenions!"
+
+    plt.figure()
+
+    for p in range(num_policies):
+
+        # Plotting all the time steps
+        # x = np.arange(num_episodes*num_steps)
+        # y = np.reshape(-avg_efe[:, p, :], (num_episodes*num_steps))
+
+        # Plotting a subset of the time steps (i.e. only the first for every episode)
+        x = np.arange(num_episodes)
+        # x = np.arange(1*(num_steps-1))
+        y_efeB_t1 = avg_efe_Bnovelty_t[:, p, 1].flatten()
+        stdy_efeB_t1 = std_efe_Bnovelty_t[:, p, 1].flatten()
+        y_efeB_t2 = avg_efe_Bnovelty_t[:, p, 2].flatten()
+        stdy_efeB_t2 = std_efe_Bnovelty_t[:, p, 2].flatten()
+        y_efeB_t3 = avg_efe_Bnovelty_t[:, p, 3].flatten()
+        stdy_efeB_t3 = std_efe_Bnovelty_t[:, p, 3].flatten()
+        # y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
+
+        plt.plot(x, y_efeB_t1, ".-", label=f"B-novelty at $t=1$ for $\\pi_{p}$")
+        plt.plot(x, y_efeB_t2, ".-", label=f"B-novelty at $t=2$ for $\\pi_{p}$")
+        plt.plot(x, y_efeB_t3, ".-", label=f"B-novelty at $t=3$ for $\\pi_{p}$")
+
+        plt.fill_between(
+            x,
+            y_efeB_t1 - (1.96 * stdy_efeB_t1 / np.sqrt(num_runs)),
+            y_efeB_t1 + (1.96 * stdy_efeB_t1 / np.sqrt(num_runs)),
+            alpha=0.3,
+        )
+
+        plt.fill_between(
+            x,
+            y_efeB_t2 - (1.96 * stdy_efeB_t2 / np.sqrt(num_runs)),
+            y_efeB_t2 + (1.96 * stdy_efeB_t2 / np.sqrt(num_runs)),
+            alpha=0.3,
+        )
+        plt.fill_between(
+            x,
+            y_efeB_t3 - (1.96 * stdy_efeB_t3 / np.sqrt(num_runs)),
+            y_efeB_t3 + (1.96 * stdy_efeB_t3 / np.sqrt(num_runs)),
+            alpha=0.3,
+        )
+
+    plt.xlabel("Step")
+    plt.ylabel("Value", rotation=90)
+    plt.legend(loc="upper left")
+    plt.title("B-novelty Components at the First Step\n")
+    # Save figure and show
+    plt.savefig(
+        save_dir + "/" + "b_novelty_comps.jpg",
         format="jpg",
         bbox_inches="tight",
         pad_inches=0.1,
