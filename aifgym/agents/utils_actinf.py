@@ -682,7 +682,7 @@ def efe(
                     # Computing B-novelty term
                     AsW_Bs = np.dot(
                         np.matmul(A, Qs_pi[pi, :, tau + 1]),
-                        np.matmul(W_B, Qs_pi[pi, :, tau + 1]),
+                        np.matmul(W_B, Qs_pi[pi, :, tau]),
                     )
                     if current_tstep == 0:
                         print(f"EFE at future time step {tau}: {AsW_Bs}")

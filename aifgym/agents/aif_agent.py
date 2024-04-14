@@ -353,7 +353,7 @@ class ActInfAgent(BaifAgent):
 
             ########### 2. Update the Q(S_t|pi) by setting gradient to zero ##############
 
-            for i in range(1):
+            for i in range(5):
 
                 # IMPORTANT: here we are replacing zero probabilities with the value 0.0001
                 # to avoid zeroes in logs.
@@ -532,8 +532,8 @@ class ActInfAgent(BaifAgent):
                     print(
                         f"B-novelty sequence by policy (stored): {self.efe_Bnovelty_t}"
                     )
-                    if sq_AsW_Bs[2] > 2200:
-                        raise Exception("B-novelty too high")
+                    # if sq_AsW_Bs[2] > 2200:
+                    #     raise Exception("B-novelty too high")
 
         # Normalising the negative expected free energies stored as column in self.Qpi to get
         # the posterior over policies Q(pi) to be used for action selection
