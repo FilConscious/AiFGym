@@ -101,9 +101,9 @@ def train(params, data_path, data_fn):
     policy_state_prob = np.zeros(
         (num_runs, num_episodes, num_policies, num_states, num_max_steps)
     )
-    # TODO: what are these?
-    last_tstep_prob = np.zeros(
-        (num_runs, num_episodes, num_policies, num_states, num_max_steps)
+    # Q(S_i|pi) recorded at every time step for every belief state
+    every_tstep_prob = np.zeros(
+        (num_runs, num_episodes, num_max_steps, num_policies, num_states, num_max_steps)
     )
     # Probabilities of the policies at each time step during every episode
     pi_probabilities = np.zeros((num_runs, num_episodes, num_policies, num_max_steps))
@@ -199,7 +199,7 @@ def train(params, data_path, data_fn):
             states_beliefs[run, e, :] = agent.states_beliefs
             actual_action_sequence[run, e, :] = agent.actual_action_sequence
             policy_state_prob[run, e, :, :, :] = agent.Qs_pi
-            last_tstep_prob[run, e, :, :, :] = agent.Qt_pi
+            every_tstep_prob[run, e, :, :, :, :] = agent.Qt_pi
             pi_probabilities[run, e, :, :] = agent.Qpi
             so_mappings[run, e, :, :] = agent.A
             transitions_prob[run, e, :, :, :] = agent.B
@@ -237,7 +237,7 @@ def train(params, data_path, data_fn):
     log_data["states_beliefs"] = states_beliefs
     log_data["actual_action_sequence"] = actual_action_sequence
     log_data["policy_state_prob"] = policy_state_prob
-    log_data["last_tstep_prob"] = last_tstep_prob
+    log_data["every_tstep_prob"] = every_tstep_prob
     log_data["pi_probabilities"] = pi_probabilities
     log_data["so_mappings"] = so_mappings
     log_data["transition_prob"] = transitions_prob

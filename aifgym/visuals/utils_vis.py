@@ -224,6 +224,12 @@ def plot_pi_fe_compare(
         y2 = avg_pi_fe[:, step_fe_pi]
 
         ax.plot(x2, y2, ".-", label=f"Policy $\\pi_{p}$")
+        ax.fill_between(
+        x2,
+        y2 - (1.96 * std_pi_fe[:, -1] / np.sqrt(num_runs)),
+        y2 + (1.96 * std_pi_fe[:, -1] / np.sqrt(num_runs)),
+        alpha=0.3,
+        )
 
     # Completing drawing axes for Figure 2
     ax.set_xticks(np.arange(0, num_episodes + 1, step=x_ticks_estep))
@@ -231,12 +237,6 @@ def plot_pi_fe_compare(
     # ax2.set_ylabel('Free Energy', rotation=90)
     ax.legend(loc="upper right")
     ax.set_title("Last Step Free Energy\n")
-    ax.fill_between(
-        x2,
-        y2 - (1.96 * std_pi_fe[:, -1] / np.sqrt(num_runs)),
-        y2 + (1.96 * std_pi_fe[:, -1] / np.sqrt(num_runs)),
-        alpha=0.3,
-    )
 
     fig.savefig(
         save_dir + "/" + f"pi_fes_compare_last_step.jpg",
@@ -403,7 +403,7 @@ def plot_pi_prob(file_data_path, x_ticks_tstep, select_policy, save_dir):
     plt.show()
 
 
-def plot_pi_prob_last(file_data_path, x_ticks_tstep, select_policy, save_dir):
+def plot_pi_prob_last(file_data_path,  x_ticks_estep, x_ticks_tstep, select_policy, save_dir):
     """Plotting the probability over policies, Q(pi), averaged over the runs at the first time step of each
     episode during the experiment.
 
@@ -459,17 +459,17 @@ def plot_pi_prob_last(file_data_path, x_ticks_tstep, select_policy, save_dir):
             alpha=0.3,
         )
 
-    plt.xticks(np.arange(0, num_episodes + 1, step=x_ticks_tstep))
+    plt.xticks(np.arange(0, num_episodes + 1, step=x_ticks_estep))
     plt.xlabel("Episode")
     plt.ylabel("Probability Mass", rotation=90)
     # plt.legend(['Policy 1', 'Policy 2', 'Policy 3', 'Policy 4', 'Policy 5'], loc='upper right')
     plt.legend(loc="upper right")
     plt.ticklabel_format(style="plain")
     plt.ticklabel_format(useOffset=False)
-    plt.title("Probability over Policies\n")
+    plt.title("First-Step Policy Probability\n")
     # Save figure and show
     plt.savefig(
-        save_dir + "/" + f"pi_probs_last.jpg",
+        save_dir + "/" + f"pi_probs_first.jpg",
         format="jpg",
         bbox_inches="tight",
         pad_inches=0.1,
@@ -539,7 +539,7 @@ def plot_efe(file_data_path, select_policy, save_dir):
     plt.show()
 
 
-def plot_efe_comps(file_data_path, select_policy, save_dir):
+def plot_efe_comps(file_data_path, select_policy, save_dir, num_tsteps=':'):
     """Plotting the expected free energy components (ambiguity, risk and novelty) for a given policy over
     all the steps averaged over the runs.
 
@@ -621,20 +621,35 @@ def plot_efe_comps(file_data_path, select_policy, save_dir):
         # x = np.arange(num_episodes*num_steps)
         # y = np.reshape(-avg_efe[:, p, :], (num_episodes*num_steps))
 
-        # Plotting a subset of the time steps (i.e. only the first for every episode)
-        x = np.arange(num_episodes)
-        # x = np.arange(1*(num_steps-1))
-        y_efea = avg_efe_ambiguity[:, p, 1].flatten()
-        stdy_efea = std_efe_ambiguity[:, p, 1].flatten()
-        # print(y_efea.shape)
-        # print(y_efea[0:10])
-        y_efer = avg_efe_risk[:, p, 1].flatten()
-        stdy_efer = std_efe_risk[:, p, 1].flatten()
-        y_efeA = avg_efe_Anovelty[:, p, 1].flatten()
-        stdy_efeA = std_efe_Anovelty[:, p, 1].flatten()
-        y_efeB = avg_efe_Bnovelty[:, p, 1].flatten()
-        stdy_efeB = std_efe_Bnovelty[:, p, 1].flatten()
-        # y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
+        # Plotting all time steps unless a specific time step is provided
+        if num_tsteps != ':':
+            x = np.arange(num_episodes)
+            # x = np.arange(1*(num_steps-1))
+            y_efea = avg_efe_ambiguity[:, p, num_tsteps].flatten()
+            stdy_efea = std_efe_ambiguity[:, p, num_tsteps].flatten()
+            # print(y_efea.shape)
+            # print(y_efea[0:10])
+            y_efer = avg_efe_risk[:, p, num_tsteps].flatten()
+            stdy_efer = std_efe_risk[:, p, num_tsteps].flatten()
+            y_efeA = avg_efe_Anovelty[:, p, num_tsteps].flatten()
+            stdy_efeA = std_efe_Anovelty[:, p, num_tsteps].flatten()
+            y_efeB = avg_efe_Bnovelty[:, p, num_tsteps].flatten()
+            stdy_efeB = std_efe_Bnovelty[:, p, num_tsteps].flatten()
+            # y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
+        else:
+            x = np.arange(num_episodes * num_steps)
+            # x = np.arange(1*(num_steps-1))
+            y_efea = avg_efe_ambiguity[:, p, :].flatten()
+            stdy_efea = std_efe_ambiguity[:, p, :].flatten()
+            # print(y_efea.shape)
+            # print(y_efea[0:10])
+            y_efer = avg_efe_risk[:, p, :].flatten()
+            stdy_efer = std_efe_risk[:, p, :].flatten()
+            y_efeA = avg_efe_Anovelty[:, p, :].flatten()
+            stdy_efeA = std_efe_Anovelty[:, p, :].flatten()
+            y_efeB = avg_efe_Bnovelty[:, p, :].flatten()
+            stdy_efeB = std_efe_Bnovelty[:, p, :].flatten()
+            # y = np.reshape(-avg_efe[2, p, 0:-1], (1*(num_steps-1)))
 
         plt.plot(x, y_efea, ".-", label=f"Ambiguity for $\\pi_{p}$")
         plt.plot(x, y_efer, ".-", label=f"Risk for $\\pi_{p}$")
@@ -670,7 +685,7 @@ def plot_efe_comps(file_data_path, select_policy, save_dir):
     plt.xlabel("Step")
     plt.ylabel("Value", rotation=90)
     plt.legend(loc="upper left")
-    plt.title("Expected Free Energy Components at the First Step\n")
+    plt.title("Expected Free Energy Components at Every Step\n")
     # Save figure and show
     plt.savefig(
         save_dir + "/" + "efe_comps.jpg",
@@ -915,12 +930,12 @@ def plot_Qt_pi_prob(
 
         pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
         selected_runs = (pi_runs > 0.5).nonzero()[0]
-        last_tstep_prob = data["last_tstep_prob"][selected_runs]
+        every_tstep_prob = data["every_tstep_prob"][selected_runs]
     else:
-        last_tstep_prob = data["last_tstep_prob"]
+        every_tstep_prob = data["every_tstep_prob"]
 
         # Averaging the state probabilities conditioned on policies over the runs and episodes
-    avg_prob = np.mean(last_tstep_prob, axis=0).squeeze()
+    avg_prob = np.mean(every_tstep_prob, axis=0).squeeze()
     # avg_prob = np.mean(avg_prob, axis=0).squeeze()
     # assert avg_prob.shape == (num_policies, num_states, num_steps)
 
@@ -930,7 +945,7 @@ def plot_Qt_pi_prob(
         num_steps - 1
     ), "Invalid random variable index."
     assert value_tSi >= 0 and value_tSi <= (
-        avg_prob.shape[2] - 1
+        avg_prob.shape[3] - 1
     ), "Invalid random variable value."
 
     # Retrieving the number of episodes
@@ -943,15 +958,13 @@ def plot_Qt_pi_prob(
         x = np.arange(num_episodes * num_steps)
         # Selecting the realization g of S_i for which to represent the change in probability at *every*
         # step during the experiment.
-        # Note 1: g and i are here determined by corresponding parameters in the phenotype file for
-        # the agent (and not throught the command line as done in the previous function).
-        # If g and i are the goal state and the final time step respectively, we are visualizing how the
+        # Note 1: If g and i are the goal state and the final time step respectively, we are visualizing how the
         # agent's belief about where it will be at the last time step in an episode change/is updated
         # throughout the experiment.
         for s in range(num_states):
-            if s == value_tSi:  # 8
-                r_tstep = index_tSi  # 4
-                y = avg_prob[:, p, s, :].flatten()
+            if s == value_tSi:
+                r_tstep = index_tSi
+                y = avg_prob[:, r_tstep, p, s, :].flatten()
                 plt.plot(x, y, ".-", label=f"$Q(S_{r_tstep}={s}|\\pi_{p})$")
 
                 plt.xticks(
@@ -1300,6 +1313,8 @@ def plot_Qs_pi_final(file_data_path, select_policy, save_dir):
 
         # Creating figure and producing heatmap for policy p
         fig, ax = plt.subplots()
+        fig.set_figwidth(5)
+        fig.set_figheight(6)
         X, Y = np.meshgrid(np.arange(num_steps), np.arange(num_states))
         im = ax.pcolormesh(X, Y, last_episode_Qspi[p, :, :].squeeze(), shading="auto")
 
@@ -1329,8 +1344,8 @@ def plot_Qs_pi_final(file_data_path, select_policy, save_dir):
                     f"{last_episode_Qspi[p, i, j]:.3f}",
                     ha="center",
                     va="center",
-                    color="w",
-                    fontsize="small",
+                    color="m",
+                    fontsize="medium",
                 )
 
         # Create colorbar

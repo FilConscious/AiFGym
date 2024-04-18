@@ -36,9 +36,6 @@ def main():
     parser.add_argument("--value_Si", "-v", type=int, required=True)
     # Arguments for selecting a random variable S_i and its desired value g to plot the Q(S_i=g|pi)
     # at *every* timestep during the experiment (see the function plot_Qt_pi_prob())
-    # NOTE: the value for index_tSi is used only for setting the plot title correctly, the variable S_i
-    # is actually chosen by setting the value for index_Qt_Si in the dedicated phenotype file.
-    # Make sure the two value correspond, otherwise the plot will be misleading.
     parser.add_argument("--index_tSi", "-ti", type=int, default=0)
     parser.add_argument("--value_tSi", "-tv", type=int, required=True)
     # Argument for selecting and plotting a column of matrix A, storing the observation (or emission)
@@ -128,7 +125,7 @@ def main():
     # 3.a Plotting the policies probabilities, i.e. Q(pi)
     plot_pi_prob(file_dp, params["x_ticks_tstep"], params["select_policy"], result_dir)
     plot_pi_prob_last(
-        file_dp, params["x_ticks_tstep"], params["select_policy"], result_dir
+        file_dp, params["x_ticks_estep"], params["x_ticks_tstep"], params["select_policy"], result_dir
     )
     # 3.b Plotting beliefs over states at a certain time step for every policy, i.e. Q(s|pi)
     plot_Qs_pi_prob(

@@ -7,7 +7,7 @@
 * General Info
 * Logs
 
-** 2022-09-14: First simulations
+** [2022-09-14]: First simulations
 
 Observations:
 
@@ -28,7 +28,7 @@ Observations:
 - even so, the optimal policy and the close-to-optimal policy seem to compete for probability mass after the fourth episde (but I don't understand why the both drop to zero at the last step)
 - also, the total free energy is zero, this might be another bug
 
-** 2022-09-15: Fixing some issues
+** [2022-09-15]: Fixing some issues
 
 Observations:
 
@@ -48,7 +48,7 @@ Observations:
 
 - Okay, I fixed the previous issue. The problem was that I messed up the step counts for the training loops, so basically the last agent steps was not carried out, one certain consequence of the bug was that the last free energy slot in the storing matrix/vector stayed at the initialized value of zero (!), it may also be that since the last agent.step was not carried out some parameters were not update, specifically the matrices \(\mathbf{A}\) and \(\mathbf{B}\) (!)
 
-** 2022-09-16: Importance of runs' average
+** [2022-09-16]: Importance of runs' average
 
 Ran an experiment for 20 episodes to see if there was any improvement. Here are some observations:
 
@@ -113,15 +113,15 @@ Explanation of what might be happening (come up after running): at the beginning
 # Test 1.1: Learning State Observation Mapping (matrix A) with Knowledge of State-Transitions (matrix B)
 # Test 2: Learning State Observation Mapping (matrix A) with Knowledge of State-Transitions (matrix B)
 
-** 2023-07-03: Updated status
+** [2023-07-03]: Updated status
 
 This was put on hold for several months (due to writing for the dissertation). The code is there but it may need some polishing before making the repo public and proper documentation. Also, the idea was to integrate the Monte-Carlo tree search planning component for a basic comparison with a RL agent.
 
-** 2023-07-11: Added docs folder
+** [2023-07-11]: Added docs folder
 
 I added a docs folder storing a file for the documentation, that can be accessed from the README.org, and this notebook for observations, notes, etc. (similar to what done for the predictive coding repo). Next, I should proceed to fill in those file with useful and essential information.
 
-** 2023-07-17: Writing the Repo Overview
+** [2023-07-17]: Writing the Repo Overview
 
 I'm going through the repo to summarize how it works and eliminate redundant, old files.
 
@@ -130,13 +130,13 @@ List of files that can be deleted:
 - ~../scripts/utils_run.py~ can be deleted as it belongs to a previous implementation
 -
 
-** 2023-07-27: Issue about policy-independent state probabilities
+** [2023-07-27]: Issue about policy-independent state probabilities
 
 I found some duplicate code that computes policy-independent state probabilities, reflecting a doubt that I had about /when/ to perform that computation, after state-estimation (perception) or after policy updating (planning)?
 
 I think it makes more sense to do it after policy updating (and that is probably why I had commented out the first instance of those lines of code). However, those updated probabilities are usually not used by the agent, except maybe in the implementation of [[cite:&Sales2019]] (I need to double-check this).
 
-** 2023-10-04: Pip issue with setuptools installation
+** [2023-10-04]: Pip issue with setuptools installation
 
 I stumbled upon the following error when trying to install the AiFGym package with ~pip install -e .~:
 
@@ -151,11 +151,11 @@ After removing two lines from the =project.toml= that specified Python as a requ
 
 It seems the installation procedure failed to recognize the version of Python installed in the activated conda environment.
 
-** 2023-10-05: Pip issue resolved
+** [2023-10-05]: Pip issue resolved
 
 The mistake/bug was listing python among the dependencies in the =pyproject.tom=, having =requires-python = ">=3.10"= under =[project]= heading is sufficient.
 
-** 2023-10-30: Errors with relative import
+** [2023-10-30]: Errors with relative import
 
 Upon trying to run a second experiment with active inference, I've got a relative import error. This might be due to some modification I made to configure the setuptools functionality for the installation of the repo.
 
@@ -183,7 +183,7 @@ The implemented solution involves two main corrections:
 
 One of the downside of this solution is that the downloaded package (i.e., the cloned repo) cannot be renamed.
 
-** 2023-10-31: ModuleNotFound Error
+** [2023-10-31]: ModuleNotFound Error
 
 The blocking issue today was that running ~python -m AiFGym...~ threw a =ModuleNotFound= error. That was unexpected because installing the package with ~pip install -e .~ should make the package visible to Python (in the =site-package= of the Python installation of the created conda environment).
 
@@ -195,7 +195,7 @@ After some reflections, it seems all was due to a bad repo structure. To do succ
 
 Now I have to update all the dependencies and pointers to folders inside the various files...then try again the installation and running some experiments. Let's see if I got it right this time!
 
-** 2023-11-01: Still ModuleNotFound error when trying to run the module from any directory
+** [2023-11-01]: Still ModuleNotFound error when trying to run the module from any directory
 
 The code works if I call the module from inside the project root directory (in which the package is located), but not if I am in any other directory.
 
@@ -205,7 +205,7 @@ Okay, configured the new entry points. Basically, I removed the folder =/scripts
 
 In configuring this, I also had to change the location of the version attribute. This resulted in /another/ ~ModuleNotFound~ error. The mistake this time was to tell Python in the =pyproject.toml= to look for modules inside =aifgym=, but doing this makes Python blind about the fact that =aifgym= is a module itself during the building time (maybe that specification was responsible for other issue as well?).
 
-** 2024-02-20: Re-familiarizing with the repo
+** [2024-02-20]: Re-familiarizing with the repo
 
 Okay, trying to remember the last changes I applied. These relate to how to run the main scripts so I should experiment a bit and report results here. The instructions in the ~README.md~ should probably be updated as well.
 
@@ -222,7 +222,7 @@ Okay, trying to remember the last changes I applied. These relate to how to run 
    - got it, it actually works by simply adding a pointer to a sub-level package. i.e., ~visuals~, and calling the function ~main()~ now moved into the init file inside ~visuals~
    - so I guess we can delete ~visualiz.py~ now
 
-** 2024-02-22: README and docs are up and running
+** [2024-02-22]: README and docs are up and running
 
 A few issues remain:
 
@@ -230,17 +230,17 @@ A few issues remain:
 2. probably need to add a few more details about the implemented features and the experiments that can be run
 3. need to sort out the math delimiters issue due to Github flavoured Markdown quirks
 
-** 2024-02-23: Bug in the Logging of EFE data when learning matrix B
+** [2024-02-23]: Bug in the Logging of EFE data when learning matrix B
 
 Found a potential bug in the scenario where matrix B is supposed to be learn. The bug has to do with the expected free energy components which appears to be all zero when the corresponding plotting functions loads the data.
 
 This is strange because the expected free energy is not zero during the experiment (need to double check this) so it might be a problem with the logging or loading of the data.
 
-** 2024-02-29: EFE data bug fixed
+** [2024-02-29]: EFE data bug fixed
 
 For the case of matrix B learning, I forgot to include the instructions to store the values of the different free energy components.
 
-** 2024-03-01: Policy learning challenging when B matrix not available
+** [2024-03-01]: Policy learning challenging when B matrix not available
 
 Finally, the day came to run the second series of experiments. Things did not turn out as expected as the results were rather disappointing. I seem to remember that I had encounter something similar in the past, probably when experimenting with learning the B matrix, but I found no record of it.
 
@@ -300,7 +300,7 @@ Observations from taking action on the above steps:
 
    - also, the false/wrong state beliefs for the sub-optimal policy are still present, I think this deserves further attention and an explanation in the paper, as briefly remarked above I think this is due to the way free energy minimization is achieved.
 
-** 2024-03-19: Policy learning without B matrices
+** [2024-03-19]: Policy learning without B matrices
 
 The issue was that there are optimal and suboptimal agents so when you look at the average results of all the runs you get the impression that on average active inference agents do not find the optimal policy, they are maladaptive.
 
@@ -310,7 +310,7 @@ After some reflections, and staring at the formulas for free energy minimization
 
 I need to look at the code again and implement the correct objective, and hope that something changes.
 
-** 2024-03-20: No changes
+** [2024-03-20]: No changes
 
 Things seem harder than what I thought. Taking into consideration the probabilities over policies in the objective does not seem to work: 1) it does not solve what I thought it could solve, 2) it makes things worse because now the agent does not seem to be learning as well as before.
 
@@ -318,7 +318,7 @@ I decided to start writing the section of the draft regardless, with what I have
 
 Further investigations revealed that the EFE computation is correct at the second-last step before reaching the final state, but it is not before that. It looks as if those computations accumulare more errors for the correct policy than the wrong one.
 
-** 2024-03-21: Tracked down the reason for weird EFE computations and other things
+** [2024-03-21]: Tracked down the reason for weird EFE computations and other things
 
 After hours spent examining the printed info in the terminal during various simulations, I was able to pinpoint the exact reasons for why the weird behaviours described earlier are happening.
 
@@ -350,7 +350,7 @@ The weird results:
 
    - however, the last update changes things by assigning the wrong probabilities to the policy not being pursued, it is not clear why this is happening, if it is either a bug or an influence of the fact that the agent has collected a full trajectory of observations, a bit more investigation should go into this
 
-** 2024-03-28: Update on the issue of mistaken \(Q(S|\pi))\)
+** [2024-03-28]: Update on the issue of mistaken \(Q(S|\pi))\)
 
 Point (6) of previous log is incorrect:
 
@@ -364,7 +364,7 @@ Point (6) of previous log is incorrect:
   - for the policy being pursued the \(Q(S|\pi))\) are correct throughout the experiment
   - for the other policy the \(Q(S_{i}|\pi))\) are uncertain up to the point the agent receives the observation for state \(i\)
 
-** 2024-03-29: Update on explosion of B-novelty for pursued policy
+** [2024-03-29]: Update on explosion of B-novelty for pursued policy
 
 After a full day of investigation, I think I have resolved the last apparent incongruity in the simulation with \(\mathbf{B}\)-matrix learning. The strange result was that for the policy being pursued at some point in the experiment (at about episode 141) the \(\mathbf{B}\)-novelty would explode. I inspected extensively info being printed in the terminal related to the computation of the novelty term and realized that, indeed, there was an explosion of the wrong values.
 
@@ -384,7 +384,7 @@ But it should be:
 \mathbb{E}_{P(O_{\tau+1}|S_{\tau+1}) Q(S_{\tau+1}|\pi_{i})} \Bigl[\mathcal{D}_{KL} \bigl[Q(\mathbf{B}|o_{\tau+1}, s_{\tau+1}^{j})|Q(\mathbf{B})\bigr]\Bigr]
 \end{equation}
 
-** 2024-03-31: Another update on explosion of B-novelty and related incongruities
+** [2024-03-31]: Another update on explosion of B-novelty and related incongruities
 
 After fixing the B-novelty term, the worry was that all the behaviour related to policy fixation in the suboptimal agents would disappear. To my surprise, I discovered that the results were confirmed, so my lengthy explanation was not in vain.
 
@@ -392,7 +392,7 @@ However, I did not double check the results with the optimal agents. Today, I di
 
 To make sure that the B-novelty does not explode as before I need to run the agents for longer, e.g., 500 episodes. After fixing issues related to divide-by-zero errors in logs (this happens because of the concentration of probabilities).
 
-** 2024-04-05: Revelations after the Presentation
+** [2024-04-05]: Revelations after the Presentation
 
 Did the presentation in front of the people from Chris' lab. The outcome was rather depressing, considering that:
 
@@ -425,3 +425,4 @@ While these new discoveries/realizations are certainly welcome insofar as they c
 - how am I gonna complete the active inference draft now? A clear comparison with =pymdp= appears essential now, explaining at the very least the differences between the two appraoches; of course this requires learning how to use their code
 - another pressing point is whether it would make sense to implement their version of active inference in my code, which seems to require a substantial effort/extra work
 - also: I'm left wondering about the theoretical justification of /their/ approach since the paper by [[cite:&DaCosta2020]] I think it is better interpreted by my implementation, perhaps there is a connection with control as inference here that should be looked into (/cf/. notes from Levine's course) as well as one with the average reward setting of RL (see [[cite:&Sutton2018]])
+  

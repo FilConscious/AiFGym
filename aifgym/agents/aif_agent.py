@@ -37,11 +37,11 @@ class ActInfAgent(BaifAgent):
         # if nothing was passed in agent_params for these variables.
         self.env_name = agent_params.get("env_name")
         self.steps = agent_params.get("steps")
+        self.inf_iters = agent_params.get("inf_iters")
         self.efe_tsteps = agent_params.get("efe_tsteps")
         self.pref_type = agent_params["pref_type"]
         self.num_policies = agent_params["num_policies"]
         self.as_mechanism = agent_params["action_selection"]
-        self.index_Qt_Si = agent_params["index_Qt_Si"]
         self.learning_A = agent_params["learn_A"]
         self.learning_B = agent_params["learn_B"]
         self.learning_D = agent_params["learn_D"]
@@ -182,10 +182,10 @@ class ActInfAgent(BaifAgent):
             * 1
             / self.num_states
         )
-        # Last timestep probabilities for every policy over an episode, i.e. these matrices show how
-        # the goal state probabilities change step after step by doing perceptual inference.
+        # Policy conditioned state-beliefs throughout an episode, i.e. these matrices show how
+        # all the Q(S_i|pi) change step after step by doing perceptual inference.
         self.Qt_pi = (
-            np.ones((self.policies.shape[0], self.num_states, self.steps))
+            np.ones((self.steps, self.policies.shape[0], self.num_states, self.steps))
             * 1
             / self.num_states
         )
@@ -353,7 +353,7 @@ class ActInfAgent(BaifAgent):
 
             ########### 2. Update the Q(S_t|pi) by setting gradient to zero ##############
 
-            for i in range(5):
+            for _ in range(self.inf_iters):
 
                 # IMPORTANT: here we are replacing zero probabilities with the value 0.0001
                 # to avoid zeroes in logs.
@@ -401,12 +401,12 @@ class ActInfAgent(BaifAgent):
                 # one at time by keeping all the others fixed. Here, we are instead using a simultaneous
                 # update of all the factors, possibly repeating this operation a few times. However,
                 # results seem OK even if the for loop iterates just for one step.
-                # print(f"BEFORE update, Qs_pi: {self.Qs_pi[pi,:,-1]}")
+                print(f"BEFORE update, Qs_{pi}: {self.Qs_pi[pi,:,3]}")
                 # print(f"Gradient for update: {grad_F_pi}")
                 self.Qs_pi[pi, :, :] = sigma(
                     (-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) - 1) - 1, axis=0
                 )
-                # print(f"AFTER update, Qs_pi: {self.Qs_pi[pi,:,-1]}")
+                print(f"AFTER update, Qs_{pi}: {self.Qs_pi[pi,:,3]}")
                 # self.Qs_pi[pi, :, :] = sigma(-self.Qpi[pi, -1] * grad_F_pi, axis=0)
             ######### END ###########
 
@@ -426,9 +426,10 @@ class ActInfAgent(BaifAgent):
             # Storing S_i probabilities for a certain index i, e.g., the index that corresponds to the
             # final step to see whether the agent ends up believing that it will reach the goal state
             # at the end of the episode by following the corresponding policy.
-            self.Qt_pi[pi, :, self.current_tstep] = self.Qs_pi[
-                pi, :, self.index_Qt_Si
-            ]  # -1
+            for t in range(self.steps):
+                self.Qt_pi[t, pi, :, self.current_tstep] = self.Qs_pi[pi, :, t]
+
+            print(self.Qt_pi.shape)
 
             # if self.current_tstep == 0 and pi==1:
             #    print(f'This is Q(S_1|pi_1): {self.Qs_pi[pi, :, 1]}')

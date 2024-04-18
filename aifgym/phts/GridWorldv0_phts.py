@@ -23,6 +23,7 @@ def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
       tiles (so it is determined by the configuration of the gridworld);
       - start_state (integer): no. of maze tile on which the agent is in at the beginning of every episode;
       - steps (integer): no. of steps every episode lasts;
+      - inf_iters (integer): no. of iterations to minimize free energy (see perception method of the agent class);
       - efe_steps (integer): no. of steps the agent 'looks' into the future to compute expected free energy;
       - num_action (integer): no. of action the agent can perform in the maze
         (move up=0, right=1, down=2, left=3);
@@ -71,14 +72,14 @@ def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
     start_state = 0
     # Number of time steps in an episode
     steps = 5
+    # No. of free energy minimization iterations
+    inf_iters = 5
     # Maximum number of time steps into the future for computing expected free energy
     efe_steps = 4
     # Number of actions
     num_action = 4
     # Number of policies
     num_policies = 2
-    # TODO
-    index_Qt_Si = -1
 
     # Specifying the agent's preferences, either over states or observations.
     # Note: the preferences could be defined either for every single step of the correct trajectory
@@ -137,6 +138,7 @@ def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
         "num_states": num_states,
         "start_state": start_state,
         "steps": steps,
+        "inf_iters": inf_iters,
         "efe_tsteps": efe_steps,
         "num_actions": num_action,
         "num_policies": num_policies,
@@ -144,7 +146,6 @@ def GridWorldv0_pt(env_name, pref_type, action_selection, learn_A, learn_B, lear
         "action_selection": action_selection,
         "pref_type": pref_type,
         "preferences": pref_array,
-        "index_Qt_Si": index_Qt_Si,
         "learn_A": learn_A,
         "learn_B": learn_B,
         "learn_D": learn_D,
