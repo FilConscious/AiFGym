@@ -97,8 +97,12 @@ def train(params, data_path, data_fn):
     states_beliefs = np.zeros((num_runs, num_episodes, num_max_steps))
     # Sequence of action performed by the agent during each episode
     actual_action_sequence = np.zeros((num_runs, num_episodes, num_max_steps - 1))
-    # Policy dependent probabilistic beliefs about environmental states
+    # Policy dependent probabilistic beliefs about environmental states (last episode step)
     policy_state_prob = np.zeros(
+        (num_runs, num_episodes, num_policies, num_states, num_max_steps)
+    )
+    # Policy dependent probabilistic beliefs about environmental states (first episode step)
+    policy_state_prob_first = np.zeros(
         (num_runs, num_episodes, num_policies, num_states, num_max_steps)
     )
     # Q(S_i|pi) recorded at every time step for every belief state
@@ -199,6 +203,7 @@ def train(params, data_path, data_fn):
             states_beliefs[run, e, :] = agent.states_beliefs
             actual_action_sequence[run, e, :] = agent.actual_action_sequence
             policy_state_prob[run, e, :, :, :] = agent.Qs_pi
+            policy_state_prob_first[run, e, :, :, :] = agent.Qsf_pi
             every_tstep_prob[run, e, :, :, :, :] = agent.Qt_pi
             pi_probabilities[run, e, :, :] = agent.Qpi
             so_mappings[run, e, :, :] = agent.A
@@ -237,6 +242,7 @@ def train(params, data_path, data_fn):
     log_data["states_beliefs"] = states_beliefs
     log_data["actual_action_sequence"] = actual_action_sequence
     log_data["policy_state_prob"] = policy_state_prob
+    log_data["policy_state_prob_first"] =  policy_state_prob_first
     log_data["every_tstep_prob"] = every_tstep_prob
     log_data["pi_probabilities"] = pi_probabilities
     log_data["so_mappings"] = so_mappings

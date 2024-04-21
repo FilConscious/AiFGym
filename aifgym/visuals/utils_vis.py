@@ -970,6 +970,14 @@ def plot_Qt_pi_prob(
                 plt.xticks(
                     np.arange(0, (num_episodes * num_steps) + 1, step=x_ticks_tstep)
                 )
+
+                # tSi_ticks = np.arange(2, (num_episodes * num_steps) + 1, step=x_ticks_tstep)
+                # for t in tSi_ticks:
+                #     plt.axvline(x=t)
+
+                plt.vlines(x=np.arange(2, (num_episodes * num_steps) + 1, step=x_ticks_tstep),
+                           ymin=0, ymax=1.0, colors='purple', ls=':', lw=0.5, label='t = 2')
+
                 plt.xlabel("Step")
                 plt.ylabel("Probability Mass", rotation=90)
                 plt.legend(loc="upper right")
@@ -1357,7 +1365,7 @@ def plot_Qs_pi_final(file_data_path, select_policy, save_dir):
         ax.invert_yaxis()
         ax.set_yticks(np.arange(num_states))
         ax.set_ylabel("State", rotation=90)
-        ax.set_title(f"State Beliefs for Policy $\\pi_{p}$")
+        ax.set_title(f"Last-step State Beliefs for Policy $\\pi_{p}$")
 
         # Save figure and show
         plt.savefig(
@@ -1368,6 +1376,103 @@ def plot_Qs_pi_final(file_data_path, select_policy, save_dir):
         )
         plt.show()
 
+
+def plot_Qs_pi_first(file_data_path, select_policy, save_dir):
+    """Visualising the Q(S_i|pi) for each policy at the first time time step of the last episode, where i
+    is in [0,...,num_steps-1] and indicates the time step during an episode. Note that the the Q(S_i|pi)
+    are categorical distributions telling you the state beliefs the agent has for each episode's time step.
+
+    Inputs:
+
+    - file_data_path (string): file path where transition probabilities were stored
+      (i.e. where log_data was saved);
+    - save_dir (string): directory where to save the images;
+
+    Outputs:
+
+    - heatmap showing the Q(S_i|pi) for each policy at the end of the experiment.
+    """
+
+    # Retrieving the data dictionary and extracting the content of required keys, e.g. 'policy_state_prob'
+    data = np.load(file_data_path, allow_pickle=True).item()
+    num_episodes = data["num_episodes"]
+    num_steps = data["num_steps"]
+    num_states = data["num_states"]
+
+    # Ignoring certain runs depending on the final probability of a certain policy, if corresponding argument
+    # was passed through the command line
+    if select_policy != -1:
+
+        pi_runs = data["pi_probabilities"][:, -1, select_policy, -1]
+        selected_runs = (pi_runs > 0.5).nonzero()[0]
+        Qs_pi_prob = data["policy_state_prob_first"][selected_runs]
+    else:
+        Qs_pi_prob = data["policy_state_prob_first"]
+
+    # Averaging the Q(S|pi) over the runs
+    avg_Qspi = np.mean(Qs_pi_prob, axis=0).squeeze()
+    # Selecting the probabilities for the last episode only
+    last_episode_Qspi = avg_Qspi[-1, :, :, :]
+
+    # Heatmap of the Q(s|pi) for every policy at the end of the experiment (after last episode)
+    for p in range(last_episode_Qspi.shape[0]):
+
+        # Creating figure and producing heatmap for policy p
+        fig, ax = plt.subplots()
+        fig.set_figwidth(5)
+        fig.set_figheight(6)
+        X, Y = np.meshgrid(np.arange(num_steps), np.arange(num_states))
+        im = ax.pcolormesh(X, Y, last_episode_Qspi[p, :, :].squeeze(), shading="auto")
+
+        # Setting top minor ticks to separate the different Q(s|pi) and adding corresponding labels
+        qspi_labels = []
+        for s in range(num_steps):
+            # qspi_labels = [r'$Q(s_{0}|\pi)$', r'$Q(s_{1}|\pi)$', r'$Q(s_{2}|\pi)$', r'$Q(s_{3}|\pi)$', r'$Q(s_{4}|\pi)$', r'$Q(s_{5}|\pi)$', r'$Q(s_{6}|\pi)$']
+            qspi_labels.append(rf"$Q(s_{s}|\pi_{p})$")
+
+        ax.set_xticks(np.arange(num_steps) - 0.5, minor=True)
+        ax.set_xticklabels(qspi_labels, minor=True)
+        ax.tick_params(
+            which="minor", top=True, bottom=False, labeltop=True, labelbottom=False
+        )
+        ax.grid(which="minor", color="w", linestyle="-", linewidth=3)
+
+        plt.setp(ax.get_xticklabels(minor=True), ha="left", rotation=30)
+
+        # Loop over data dimensions and create text annotations.
+        # Note 1: i, j are inverted in ax.text() because row-column coordinates in a matrix correspond
+        # to y-x Cartesian coordinates
+        for i in range(num_states):
+            for j in range(num_steps):
+                text = ax.text(
+                    j,
+                    i,
+                    f"{last_episode_Qspi[p, i, j]:.3f}",
+                    ha="center",
+                    va="center",
+                    color="m",
+                    fontsize="medium",
+                )
+
+        # Create colorbar
+        cbar = ax.figure.colorbar(im, ax=ax)
+        cbar.ax.set_ylabel("Probability", rotation=-90, va="bottom")
+
+        ax.set_xticks(np.arange(num_steps))
+        ax.set_xlabel("Time Step")
+        ax.invert_yaxis()
+        ax.set_yticks(np.arange(num_states))
+        ax.set_ylabel("State", rotation=90)
+        ax.set_title(f"First-step State Beliefs for Policy $\\pi_{p}$")
+
+        # Save figure and show
+        plt.savefig(
+            save_dir + "/" + f"Qs_pi{p}_start.jpg",
+            format="jpg",
+            bbox_inches="tight",
+            pad_inches=0.1,
+        )
+        plt.show()
 
 def plot_oa_sequence(file_data_path, num_episodes, num_steps):
     """Plotting the sequences of observations and actions for one or more runs and one or more episodes.

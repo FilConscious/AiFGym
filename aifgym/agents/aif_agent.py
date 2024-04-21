@@ -182,6 +182,14 @@ class ActInfAgent(BaifAgent):
             * 1
             / self.num_states
         )
+        # This multi-dimensional array is exactly like the previous one but is used for storing/logging
+        # the state probabilities given a policy for the first step of the episode (while the previous array
+        # is overwritten at every step and ends up logging the last step state beliefs for the episode)
+        self.Qsf_pi = (
+            np.ones((self.policies.shape[0], self.num_states, self.steps))
+            * 1
+            / self.num_states
+        )
         # Policy conditioned state-beliefs throughout an episode, i.e. these matrices show how
         # all the Q(S_i|pi) change step after step by doing perceptual inference.
         self.Qt_pi = (
@@ -407,6 +415,10 @@ class ActInfAgent(BaifAgent):
                     (-1) * (grad_F_pi - np.log(self.Qs_pi[pi, :, :]) - 1) - 1, axis=0
                 )
                 print(f"AFTER update, Qs_{pi}: {self.Qs_pi[pi,:,3]}")
+
+                # Storing the state beliefs at the first step of the episode
+                if self.current_tstep == 0:
+                    self.Qsf_pi[pi, :, :] = self.Qs_pi[pi, :, :]
                 # self.Qs_pi[pi, :, :] = sigma(-self.Qpi[pi, -1] * grad_F_pi, axis=0)
             ######### END ###########
 

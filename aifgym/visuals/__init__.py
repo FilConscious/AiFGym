@@ -164,8 +164,10 @@ def main():
         result_dir,
     )
     # 6. Plotting other heatmaps
-    # Plotting categorical distributions Q(S|pi) from the last episode (averaged over the runs)
+    # Plotting categorical distributions Q(S|pi) from the last episode and *last* step (averaged over the runs)
     plot_Qs_pi_final(file_dp, params["select_policy"], result_dir)
+    # Plotting categorical distributions Q(S|pi) from the last episode and *first* step (averaged over the runs)
+    plot_Qs_pi_first(file_dp, params["select_policy"], result_dir)
     # Plotting state visits (averaged over the runs)
     plot_state_visits(
         file_dp, params["v_len"], params["h_len"], params["select_policy"], result_dir
