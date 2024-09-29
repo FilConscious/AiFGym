@@ -539,7 +539,7 @@ def plot_efe(file_data_path, select_policy, save_dir):
     plt.show()
 
 
-def plot_efe_comps(file_data_path, select_policy, save_dir, num_tsteps=':'):
+def plot_efe_comps(file_data_path, select_policy, save_dir, num_tsteps=None):
     """Plotting the expected free energy components (ambiguity, risk and novelty) for a given policy over
     all the steps averaged over the runs.
 
@@ -622,7 +622,7 @@ def plot_efe_comps(file_data_path, select_policy, save_dir, num_tsteps=':'):
         # y = np.reshape(-avg_efe[:, p, :], (num_episodes*num_steps))
 
         # Plotting all time steps unless a specific time step is provided
-        if num_tsteps != ':':
+        if num_tsteps != None:
             x = np.arange(num_episodes)
             # x = np.arange(1*(num_steps-1))
             y_efea = avg_efe_ambiguity[:, p, num_tsteps].flatten()
